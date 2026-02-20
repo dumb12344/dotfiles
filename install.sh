@@ -1,6 +1,8 @@
 #!/bin/bash
 echo Installing script packages and updating system
-sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl --needed
+sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl ly --needed
+sudo systemctl enable ly@tty1.service
+sudo systemctl disable getty@tty1.service
 figlet Stuff -f big
 echo Installing yay aur helper
 yaytmp=$(mktemp -d)
