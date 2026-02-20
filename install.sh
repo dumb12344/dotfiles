@@ -6,11 +6,12 @@ sudo systemctl disable getty@tty1.service
 figlet Stuff -f big
 if [ ! -f /usr/bin/yay ]; then
     echo Installing yay aur helper
+    dir=$(pwd)
     yaytmp=$(mktemp -d)
     git clone https://aur.archlinux.org/yay-bin.git $yaytmp
     cd $yaytmp
     makepkg -si
-    cd ~
+    cd $dir
     sudo rm -rf $yaytmp
 fi
 echo Installing aur packages
