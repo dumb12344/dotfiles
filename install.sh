@@ -17,6 +17,6 @@ fi
 echo Installing aur packages
 yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed
 echo copying configs
-cp -rf configs/.* ~/
+cp -rf ./configs ~
 chown -R $(whoami) ~/*
 chgrp -R $(whoami) ~/*
