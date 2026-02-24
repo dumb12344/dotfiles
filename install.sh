@@ -26,3 +26,13 @@ cp -rf configs/. ~
 sudo chsh test -s /bin/zsh
 chown -R $(whoami) ~/*
 chgrp -R $(whoami) ~/*
+echo Remember to re-run if any task fails:
+if [ ! -f /usr/sbin/qs ]; then
+    echo Quickshell wasn\'t installed properly
+fi
+if [ ! -f /etc/xdg/quickshell/noctalia-shell/shell.qml ]; then
+    echo Noctalia shell wasn\'t installed properly
+fi
+if [ ! -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]; then
+    echo Powerlevel10k wasn\'t installed properly
+fi
