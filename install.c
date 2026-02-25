@@ -75,10 +75,10 @@ int main(){
 	init_pair(2, COLOR_CYAN, COLOR_BLACK);
     n_choices = ARRAY_SIZE(choices);
     my_items = (ITEM **)calloc(n_choices, sizeof(ITEM *));
-    for(i = 0; i < n_choices; ++i){
-        char* prefix = concat(finishedtasks[i] ? "ee " : "ea ", choiceids[i]);
-        my_items[i] = new_item(prefix, choices[i]);
-        //my_items[i] = new_item(choiceids[i], choices[i]);
+    for(i = 0; i < n_choices; ++i){ 
+        //char* prefix = concat(finishedtasks[i] ? "ee " : "ea ", choiceids[i]);
+        //my_items[i] = new_item(prefix, choices[i]);
+        my_items[i] = new_item(choiceids[i], choices[i]);
     }
     int x,y;
     getmaxyx(stdscr, x, y);
