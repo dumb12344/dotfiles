@@ -3,7 +3,7 @@ Intended to be installed after a minimal system is setup (e.g. archinstall with 
 
 One-liner if you have git:
 
-```git clone https://github.com/dumb12344/dotfiles.git && ./dotfiles/install.sh```
+```git clone https://github.com/dumb12344/dotfiles.git && cd dotfiles && ./install.sh```
 
 If you don't:
 ```
