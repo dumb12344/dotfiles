@@ -8,6 +8,8 @@ sudo systemctl enable ly@tty1.service
 sudo systemctl disable getty@tty1.service
 figlet Stuff -f big
 if [ ! -f /usr/bin/yay ]; then
+    echo Removing debug from makepkg config
+    sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf
     echo Installing yay aur helper
     dir=$(pwd)
     yaytmp=$(mktemp -d)
@@ -17,8 +19,6 @@ if [ ! -f /usr/bin/yay ]; then
     cd $dir
     sudo rm -rf $yaytmp
 fi
-echo Removing debug from makepkg config
-sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf
 echo Installing aur packages
 yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed
 echo Copying configs

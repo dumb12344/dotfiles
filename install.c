@@ -7,16 +7,11 @@
 #define CTRLD 	4
 // ty to https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
 char *choices[] = {
-    "Choice 1",
-    "Choice 2",
-    "Choice 3",
-    "Choice 4",
-    "Choice 5",
-    "Choice 6",
-    "Choice 7",
-    "Choice 8",
-    "Choice 9",
-    "Choice 10",
+    "Install packages",
+    "Install yay AUR helper",
+    "Install AUR packages",
+    "Copy configs",
+    "Reboot",
     "Exit",
     (char *)NULL,
 };
@@ -27,17 +22,9 @@ char *choiceids[] = {
     "4",
     "5",
     "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
     (char *)NULL,
 };
 bool finishedtasks[] = {
-    true,
-    false,
-    false,
     false,
     false,
     false,
@@ -46,85 +33,6 @@ bool finishedtasks[] = {
     false,
     false,
 };
-void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
-
-
-char* concat(char *s1, char *s2){
-    /*char *result = malloc(strlen(s1) + strlen(s2) + 1);
-    // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
-    strcpy(result, s1);
-    strcat(result, s2);
-    return result;*/
-    char *result;
-    snprintf(result, sizeof(result), "%s%s", s1, s2);
-    return result;
-}
-
-int main(){
-    ITEM **my_items;
-	int c;
-	MENU *my_menu;
-    WINDOW *my_menu_win;
-    int n_choices, i;
-	initscr();
-	start_color();
-    cbreak();
-    noecho();
-	keypad(stdscr, TRUE);
-	init_pair(1, COLOR_RED, COLOR_BLACK);
-	init_pair(2, COLOR_CYAN, COLOR_BLACK);
-    n_choices = ARRAY_SIZE(choices);
-    my_items = (ITEM **)calloc(n_choices, sizeof(ITEM *));
-    for(i = 0; i < n_choices; ++i){ 
-        //char* prefix = concat(finishedtasks[i] ? "ee " : "ea ", choiceids[i]);
-        //my_items[i] = new_item(prefix, choices[i]);
-        my_items[i] = new_item(choiceids[i], choices[i]);
-    }
-    int x,y;
-    getmaxyx(stdscr, x, y);
-	my_menu = new_menu((ITEM **)my_items);
-    my_menu_win = newwin(x/2, y/3, x/3, y/3);
-    keypad(my_menu_win, TRUE);
-    set_menu_win(my_menu, my_menu_win);
-    set_menu_sub(my_menu, derwin(my_menu_win, 0, 48, 3, x/3));
-    set_menu_format(my_menu, 12, 1);
-    set_menu_mark(my_menu, " * ");
-    box(my_menu_win, 0, 0);
-	print_in_middle(my_menu_win, 1, 0, y/3, "My Menu", COLOR_PAIR(2));
-	mvwaddch(my_menu_win, 2, 0, ACS_LTEE);
-	mvwhline(my_menu_win, 2, 1, ACS_HLINE, y/3-2);
-	mvwaddch(my_menu_win, 2, y/3-1, ACS_RTEE);
-	post_menu(my_menu);
-	wrefresh(my_menu_win);
-	
-	attron(COLOR_PAIR(2));
-	mvprintw(LINES - 1, 0, "Arrow Keys to navigate (Q to Exit)");
-	attroff(COLOR_PAIR(2));
-	refresh();
-
-	while(c != 'q'){
-        c = wgetch(my_menu_win);
-        switch(c){
-            case KEY_DOWN:
-				menu_driver(my_menu, REQ_DOWN_ITEM);
-				break;
-			case KEY_UP:
-				menu_driver(my_menu, REQ_UP_ITEM);
-				break;
-            case KEY_ENTER:
-                system("echo asd");
-                break;
-		}
-        wrefresh(my_menu_win);
-	}	
-    unpost_menu(my_menu);
-    free_menu(my_menu);
-    for(i = 0; i < n_choices; ++i){ 
-        free_item(my_items[i]);
-    }
-	endwin();
-}
-
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color){
     int length, x, y;
 	float temp;
@@ -146,4 +54,123 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 	mvwprintw(win, y, x, "%s", string);
 	wattroff(win, color);
 	refresh();
+}
+
+char* concat(char *s1, char *s2){
+    // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
+    char *result = malloc(sizeof(s1) + sizeof(s2));
+    snprintf(result, sizeof(s1) + sizeof(s2), "%s%s", s1, s2);
+    return result;
+}
+
+void determineitems(ITEM** items, int n_choices){
+    for(int i = 0; i < n_choices; ++i){ 
+        char* prefix=choiceids[i];
+        if(i <= n_choices - 2){
+            prefix = concat(finishedtasks[i]? "(Finished) " : "           ",prefix);
+        }
+        items[i] = new_item(prefix, choices[i]);
+        //items[i] = new_item(choiceids[i], choices[i]);
+    }
+}
+
+int main(){
+    ITEM **items;
+	int c;
+	MENU *menu;
+    WINDOW *menu_win;
+    int n_choices, i;
+    bool end = false;
+	initscr();
+	start_color();
+    cbreak();
+    noecho();
+	keypad(stdscr, TRUE);
+	init_pair(1, COLOR_RED, COLOR_BLACK);
+	init_pair(2, COLOR_CYAN, COLOR_BLACK);
+    n_choices = ARRAY_SIZE(choices);
+    items = (ITEM **) calloc(n_choices, sizeof(ITEM *));
+    determineitems(items, n_choices);
+    int x,y;
+    getmaxyx(stdscr, x, y);
+	menu = new_menu((ITEM **) items);
+    menu_win = newwin(x / 2, y / 3, x / 3, y / 3);
+    keypad(menu_win, TRUE);
+    set_menu_win(menu, menu_win);
+    set_menu_sub(menu, derwin(menu_win, 0, 48, 3, x/5));
+    set_menu_format(menu, 12, 1);
+    set_menu_mark(menu, " * ");
+    box(menu_win, 0, 0);
+	print_in_middle(menu_win, 1, 0, y/3, "Dotfiles", COLOR_PAIR(2));
+	mvwaddch(menu_win, 2, 0, ACS_LTEE);
+	mvwhline(menu_win, 2, 1, ACS_HLINE, y / 3 - 2);
+	mvwaddch(menu_win, 2, y / 3 - 1, ACS_RTEE);
+	wrefresh(menu_win);
+	
+	attron(COLOR_PAIR(2));
+	mvprintw(LINES - 1, 0, "Arrow Keys to navigate (Q to Exit)");
+	attroff(COLOR_PAIR(2));
+    post_menu(menu);
+	refresh();
+
+	while(c != 'q' && !end){
+        c = wgetch(menu_win);
+        switch(c){
+            case KEY_DOWN:
+				menu_driver(menu, REQ_DOWN_ITEM);
+				break;
+			case KEY_UP:
+				menu_driver(menu, REQ_UP_ITEM);
+				break;
+            case 10:
+				endwin();
+                char *endptr;
+                int id;
+                id = strtol(item_name(current_item(menu)), &endptr, 10);
+                switch(id){
+                    case 1:
+                        printf("Installing packages and updating system");
+                        //install packages
+                        system("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
+                                        xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
+                                        xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
+                                        ttf-cascadia-code-nerd --needed"
+                        );
+                        //enable ly
+                        system("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
+                        finishedtasks[0] = true;
+                        break;
+                    case 2:
+                        system("echo 2");
+                        finishedtasks[1] = true;
+                        determineitems(items, n_choices);
+                        unpost_menu(menu);
+                        post_menu(menu);
+                        box(menu_win, 0, 0);
+                        wrefresh(menu_win);
+                        //whyyyyy
+                        break;
+                    case 3:
+                        system("echo 3 && read");
+                        break;
+                    case 4:
+                        system("echo 4 && read");
+                        break;
+                    case 5:
+                        system("echo 5 && read");
+                        break;
+                    case 6:
+                        end = true;
+                        break;
+                }
+                break;
+		}
+        wrefresh(menu_win);
+	}
+    unpost_menu(menu);
+    for(int i = 0; i < n_choices; ++i){ 
+        free_item(items[i]);
+    }
+    free_menu(menu);
+	endwin();
 }
