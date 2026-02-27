@@ -1,6 +1,11 @@
-build:
-	rm install -f
+all: run
+
+build: clean
 	gcc -o install install.c -lncurses -lpanel -lmenu
-dev: build
+clean:
+	rm install -f
+run: build
 	./install
-	rm install
+#dev: build
+#	./install
+#	rm install

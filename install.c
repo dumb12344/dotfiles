@@ -94,6 +94,7 @@ bool handleSelection(int id, MENU* menu){
             system("echo Installing AUR packages");
             system("yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed");
             system("read -n 1 -p \"Press any key to continue...\"");
+            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 4:
             system("echo Applying configs");
@@ -102,6 +103,7 @@ bool handleSelection(int id, MENU* menu){
             system("echo Copying user configs");
             system("cp -rf configs/. ~");
             system("read -n 1 -p \"Press any key to continue...\"");
+            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 5:
             system("echo Detecting problems");
@@ -123,6 +125,8 @@ bool handleSelection(int id, MENU* menu){
             else{
                 system("echo Powerlevel10k wasn\'t installed properly");
             }
+            system("read -n 1 -p \"Press any key to continue...\"");
+            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 6:
             system("reboot");
