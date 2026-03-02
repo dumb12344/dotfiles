@@ -59,14 +59,14 @@ bool handleSelection(int id, MENU* menu){
             break;
         case 2:
             if (access("/usr/bin/yay", F_OK) == 0) {
-                system("echo yay is already installed.");
+                puts("yay is already installed.");
             } else {
-                system("echo yay is not installed.");
+                puts("yay is not installed.");
                 //I don't need debug packages
-                system("echo Disabling debug in makepkg.conf");
+                puts("Disabling debug in makepkg.conf");
                 system("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
                 //create temp directory
-                system("echo Creating temporary directory");
+                puts("Creating temporary directory");
                 char template[] = "/tmp/tmpdir.XXXXXX";
                 char *dir_name = mkdtemp(template);
                 char tmp[1000] = "echo Created directory ";
@@ -91,39 +91,48 @@ bool handleSelection(int id, MENU* menu){
             menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 3:
-            system("echo Installing AUR packages");
+            puts("Installing AUR packages");
             system("yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed");
             system("read -n 1 -p \"Press any key to continue...\"");
             menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 4:
-            system("echo Applying configs");
-            system("echo Changing shell to zsh");
+            puts("Applying configs");
+            puts("Changing shell to zsh");
             system("sudo chsh test -s /bin/zsh");
-            system("echo Copying user configs");
+            puts("Copying user configs");
             system("cp -rf configs/. ~");
+            fputs("Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) ", stdout);
+            char test[2];
+            fgets(test,2,stdin);
+            if(strcmp(test,"n") == 0){
+                system("ln -sf Pictures/lightmodewallpapers Pictures/Wallpapers");
+            }
+            else{
+                system("ln -sf Pictures/darkmodewallpapers Pictures/Wallpapers");
+            }
             system("read -n 1 -p \"Press any key to continue...\"");
             menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 5:
-            system("echo Detecting problems");
+            puts("Detecting problems");
             if (access("/usr/sbin/qs", F_OK) == 0){
-                system("echo Quickshell is installed properly");
+                puts("Quickshell is installed properly");
             }
             else{
-                system("echo Quickshell wasn\'t installed properly");
+                puts("Quickshell wasn\'t installed properly");
             }
             if (access("/etc/xdg/quickshell/noctalia-shell/shell.qml", F_OK) == 0){
-                system("echo Noctalia Shell is installed properly");
+                puts("Noctalia Shell is installed properly");
             }
             else{
-                system("echo Noctalia Shell wasn\'t installed properly");
+                puts("Noctalia Shell wasn\'t installed properly");
             }
             if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0){
-                system("echo Powerlevel10k is installed properly");
+                puts("Powerlevel10k is installed properly");
             }
             else{
-                system("echo Powerlevel10k wasn\'t installed properly");
+                puts("Powerlevel10k wasn\'t installed properly");
             }
             system("read -n 1 -p \"Press any key to continue...\"");
             menu_driver(menu, REQ_TOGGLE_ITEM);
