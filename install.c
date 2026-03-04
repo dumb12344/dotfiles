@@ -106,10 +106,10 @@ bool handleSelection(int id, MENU* menu){
             char test[2];
             fgets(test,2,stdin);
             if(strcmp(test,"n") == 0){
-                system("ln -sf Pictures/lightmodewallpapers Pictures/Wallpapers");
+                system("ln -sf ~/Pictures/lightmodewallpapers ~/Pictures/Wallpapers");
             }
             else{
-                system("ln -sf Pictures/darkmodewallpapers Pictures/Wallpapers");
+                system("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
             }
             system("read -n 1 -p \"Press any key to continue...\"");
             menu_driver(menu, REQ_TOGGLE_ITEM);
