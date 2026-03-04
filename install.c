@@ -212,7 +212,7 @@ int main(){
     menu_win = newwin(x / 2, y / 3, x / 3, y / 3);
     keypad(menu_win, TRUE);
     set_menu_win(menu, menu_win);
-    set_menu_sub(menu, derwin(menu_win, 0, 48, 3, x/5));
+    set_menu_sub(menu, derwin(menu_win, 7, 40, 3, x/5));
     set_menu_format(menu, 12, 1);
     set_menu_mark(menu, " * ");
     box(menu_win, 0, 0);
