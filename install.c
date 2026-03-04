@@ -76,7 +76,7 @@ bool handleSelection(int id, MENU * menu){
             system("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
                             xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
                             xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
-                            ttf-cascadia-code-nerd --needed"
+                            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme --needed"
             );
             //enable ly
             system("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
