@@ -6,9 +6,14 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define CTRLD 	4
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
 
+// https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
 // ty to https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
-char *choices[] = {
+char * choices[] = {
     "Install packages",
     "Install yay AUR helper",
     "Install AUR packages",
@@ -19,7 +24,7 @@ char *choices[] = {
     (char *)NULL,
 };
 
-char *choiceids[] = {
+char * choiceids[] = {
     "1",
     "2",
     "3",
@@ -41,7 +46,28 @@ bool finishedtasks[] = {
     false,
 };
 
-bool handleSelection(int id, MENU* menu){
+void info(char * inText){
+    size_t length = strlen(inText)+12;
+    char outText[length];
+    sprintf(outText, ANSI_COLOR_CYAN "%s" ANSI_COLOR_RESET, inText);
+    puts(outText);
+}
+
+void good(char * inText){
+    size_t length = strlen(inText)+12;
+    char outText[length];
+    sprintf(outText, ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET, inText);
+    puts(outText);
+}
+
+void bad(char * inText){
+    size_t length = strlen(inText)+12;
+    char outText[length];
+    sprintf(outText, ANSI_COLOR_RED "%s" ANSI_COLOR_RESET, inText);
+    puts(outText);
+}
+
+bool handleSelection(int id, MENU * menu){
     switch(id){
         case 1:
             system("clear");
@@ -59,19 +85,19 @@ bool handleSelection(int id, MENU* menu){
             break;
         case 2:
             if (access("/usr/bin/yay", F_OK) == 0) {
-                puts("yay is already installed.");
+                good("yay is already installed.");
             } else {
-                puts("yay is not installed.");
+                bad("yay is not installed.");
                 //I don't need debug packages
-                puts("Disabling debug in makepkg.conf");
+                info("Disabling debug in makepkg.conf");
                 system("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
                 //create temp directory
-                puts("Creating temporary directory");
-                char template[] = "/tmp/tmpdir.XXXXXX";
-                char *dir_name = mkdtemp(template);
-                char tmp[1000] = "echo Created directory ";
+                info("Creating temporary directory");
+                char template[] = "/tmp/yay.XXXXXX";
+                char * dir_name = mkdtemp(template);
+                char tmp[1000] = "Created directory ";
                 strcat(tmp, dir_name);
-                system(tmp);
+                info(tmp);
                 //clone into temp directory and save current directory
                 char command[1000] = "git clone https://aur.archlinux.org/yay-bin.git ";
                 strcat(command, dir_name);
@@ -91,18 +117,18 @@ bool handleSelection(int id, MENU* menu){
             menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 3:
-            puts("Installing AUR packages");
+            info("Installing AUR packages");
             system("yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed");
             system("read -n 1 -p \"Press any key to continue...\"");
             menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 4:
-            puts("Applying configs");
-            puts("Changing shell to zsh");
+            info("Applying configs");
+            info("Changing shell to zsh");
             system("sudo chsh test -s /bin/zsh");
-            puts("Copying user configs");
+            info("Copying user configs");
             system("cp -rf configs/. ~");
-            fputs("Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) ", stdout);
+            fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
             char test[2];
             fgets(test,2,stdin);
             if(strcmp(test,"n") == 0){
@@ -115,24 +141,24 @@ bool handleSelection(int id, MENU* menu){
             menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 5:
-            puts("Detecting problems");
+            info("Detecting problems" ANSI_COLOR_RESET);
             if (access("/usr/sbin/qs", F_OK) == 0){
-                puts("Quickshell is installed properly");
+                good("Quickshell is installed properly");
             }
             else{
-                puts("Quickshell wasn\'t installed properly");
+                bad("Quickshell wasn\'t installed properly");
             }
             if (access("/etc/xdg/quickshell/noctalia-shell/shell.qml", F_OK) == 0){
-                puts("Noctalia Shell is installed properly");
+                good("Noctalia Shell is installed properly");
             }
             else{
-                puts("Noctalia Shell wasn\'t installed properly");
+                bad("Noctalia Shell wasn\'t installed properly");
             }
             if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0){
-                puts("Powerlevel10k is installed properly");
+                good("Powerlevel10k is installed properly");
             }
             else{
-                puts("Powerlevel10k wasn\'t installed properly");
+                bad("Powerlevel10k wasn\'t installed properly");
             }
             system("read -n 1 -p \"Press any key to continue...\"");
             menu_driver(menu, REQ_TOGGLE_ITEM);
@@ -147,7 +173,7 @@ bool handleSelection(int id, MENU* menu){
     return false;
 }
 
-void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color){
+void print_in_middle(WINDOW * win, int starty, int startx, int width, char * string, chtype color){
     int length, x, y;
 	float temp;
 
@@ -170,16 +196,16 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 	refresh();
 }
 
-char* concat(char *s1, char *s2){
+char * concat(char * s1, char * s2){
     // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
-    char *result = malloc(sizeof(s1) + sizeof(s2));
+    char * result = malloc(sizeof(s1) + sizeof(s2));
     snprintf(result, sizeof(s1) + sizeof(s2), "%s%s", s1, s2);
     return result;
 }
 
-void determineitems(ITEM** items, int n_choices){
+void determineitems(ITEM ** items, int n_choices){
     for(int i = 0; i < n_choices; ++i){ 
-        char* prefix=choiceids[i];
+        char * prefix=choiceids[i];
         if(i <= n_choices - 2){
             prefix = concat(finishedtasks[i]? "(Finished) " : "           ",prefix);
         }
@@ -189,10 +215,10 @@ void determineitems(ITEM** items, int n_choices){
 }
 
 int main(){
-    ITEM **items;
+    ITEM ** items;
 	int c;
-	MENU *menu;
-    WINDOW *menu_win;
+	MENU * menu;
+    WINDOW * menu_win;
     int n_choices, i;
     bool end = false;
 	initscr();
@@ -239,7 +265,7 @@ int main(){
 				break;
             case 10:
 				endwin();
-                char *endptr;
+                char * endptr;
                 int id;
                 id = strtol(item_name(current_item(menu)), &endptr, 10);
                 end = handleSelection(id, menu);
