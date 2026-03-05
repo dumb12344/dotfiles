@@ -46,25 +46,29 @@ bool finishedtasks[] = {
     false,
 };
 
+char * concat2(char * s1, char * s2){
+    // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
+    char * result = malloc(sizeof(s1) + sizeof(s2));
+    snprintf(result, sizeof(s1) + sizeof(s2), "%s%s", s1, s2);
+    return result;
+}
+
+char * concat3(char * s1, char * s2, char * s3){
+    char * result = malloc(sizeof(s1) + sizeof(s2) + sizeof(s3));
+    snprintf(result, sizeof(s1) + sizeof(s2) + sizeof(s3), "%s%s%s", s1, s2, s3);
+    return result;
+}
+
 void info(char * inText){
-    size_t length = strlen(inText)+12;
-    char outText[length];
-    sprintf(outText, ANSI_COLOR_CYAN "%s" ANSI_COLOR_RESET, inText);
-    puts(outText);
+    puts(concat3(ANSI_COLOR_CYAN, inText, ANSI_COLOR_RESET));
 }
 
 void good(char * inText){
-    size_t length = strlen(inText)+12;
-    char outText[length];
-    sprintf(outText, ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET, inText);
-    puts(outText);
+    puts(concat3(ANSI_COLOR_GREEN, inText, ANSI_COLOR_RESET));
 }
 
 void bad(char * inText){
-    size_t length = strlen(inText)+12;
-    char outText[length];
-    sprintf(outText, ANSI_COLOR_RED "%s" ANSI_COLOR_RESET, inText);
-    puts(outText);
+    puts(concat3(ANSI_COLOR_RED, inText, ANSI_COLOR_RESET));
 }
 
 bool handleSelection(int id, MENU * menu){
@@ -95,13 +99,9 @@ bool handleSelection(int id, MENU * menu){
                 info("Creating temporary directory");
                 char template[] = "/tmp/yay.XXXXXX";
                 char * dir_name = mkdtemp(template);
-                char tmp[1000] = "Created directory ";
-                strcat(tmp, dir_name);
-                info(tmp);
+                info(concat2("Created directory", dir_name));
                 //clone into temp directory and save current directory
-                char command[1000] = "git clone https://aur.archlinux.org/yay-bin.git ";
-                strcat(command, dir_name);
-                system(command);
+                system(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
                 char dotsdir[1000];
                 getcwd(dotsdir, sizeof(dotsdir));
                 //make package and go back to previous directory
@@ -109,9 +109,7 @@ bool handleSelection(int id, MENU * menu){
                 system("makepkg -si");
                 chdir(dotsdir);
                 //remove package directory
-                char command2[1000] = "rm -rf ";
-                strcat(command2, dir_name);
-                system(command2);
+                system(concat2("rm -rf ", dir_name));
             }
             system("read -n 1 -p \"Press any key to continue...\"");
             menu_driver(menu, REQ_TOGGLE_ITEM);
@@ -196,18 +194,12 @@ void print_in_middle(WINDOW * win, int starty, int startx, int width, char * str
 	refresh();
 }
 
-char * concat(char * s1, char * s2){
-    // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
-    char * result = malloc(sizeof(s1) + sizeof(s2));
-    snprintf(result, sizeof(s1) + sizeof(s2), "%s%s", s1, s2);
-    return result;
-}
 
 void determineitems(ITEM ** items, int n_choices){
     for(int i = 0; i < n_choices; ++i){ 
         char * prefix=choiceids[i];
         if(i <= n_choices - 2){
-            prefix = concat(finishedtasks[i]? "(Finished) " : "           ",prefix);
+            prefix = concat2(finishedtasks[i] ? "(Finished) " : "           ", prefix);
         }
         items[i] = new_item(prefix, choices[i]);
         //items[i] = new_item(choiceids[i], choices[i]);

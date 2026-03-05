@@ -1,10 +1,12 @@
 all: run
 
-build: clean
-	gcc -o install install.c -lncurses -lpanel -lmenu
+dev: cleanrun
 
-clean:
-	rm install -f
+build:
+	gcc -o install install.c -lncurses -lpanel -lmenu
 
 run: build
 	./install
+
+cleanrun: run
+	rm install -f
