@@ -48,14 +48,19 @@ bool finishedtasks[] = {
 
 char * concat2(char * s1, char * s2){
     // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
-    char * result = malloc(sizeof(s1) + sizeof(s2));
-    snprintf(result, sizeof(s1) + sizeof(s2), "%s%s", s1, s2);
+    char * result = malloc(strlen(s1) + strlen(s2) + 1);
+    //strcpy(result, s1);
+    //strcat(result, s2);
+    snprintf(result, strlen(s1) + strlen(s2), "%s%s", s1, s2);
     return result;
 }
 
 char * concat3(char * s1, char * s2, char * s3){
-    char * result = malloc(sizeof(s1) + sizeof(s2) + sizeof(s3));
-    snprintf(result, sizeof(s1) + sizeof(s2) + sizeof(s3), "%s%s%s", s1, s2, s3);
+    char * result = malloc(strlen(s1) + strlen(s2) + strlen(s3) + 1);
+    //strcpy(result, s1);
+    //strcat(result, s2);
+    //strcat(result, s3);
+    snprintf(result, strlen(s1) + strlen(s2) + strlen(s3), "%s%s%s", s1, s2, s3);
     return result;
 }
 
@@ -72,9 +77,9 @@ void bad(char * inText){
 }
 
 bool handleSelection(int id, MENU * menu){
+    system("clear");
     switch(id){
         case 1:
-            system("clear");
             printw("Installing packages and updating system");
             //install packages
             system("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
@@ -84,8 +89,6 @@ bool handleSelection(int id, MENU * menu){
             );
             //enable ly
             system("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
-            system("read -n 1 -p \"Press any key to continue...\"");
-            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 2:
             if (access("/usr/bin/yay", F_OK) == 0) {
@@ -111,14 +114,10 @@ bool handleSelection(int id, MENU * menu){
                 //remove package directory
                 system(concat2("rm -rf ", dir_name));
             }
-            system("read -n 1 -p \"Press any key to continue...\"");
-            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 3:
             info("Installing AUR packages");
             system("yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed");
-            system("read -n 1 -p \"Press any key to continue...\"");
-            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 4:
             info("Applying configs");
@@ -135,8 +134,6 @@ bool handleSelection(int id, MENU * menu){
             else{
                 system("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
             }
-            system("read -n 1 -p \"Press any key to continue...\"");
-            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 5:
             info("Detecting problems" ANSI_COLOR_RESET);
@@ -158,16 +155,17 @@ bool handleSelection(int id, MENU * menu){
             else{
                 bad("Powerlevel10k wasn\'t installed properly");
             }
-            system("read -n 1 -p \"Press any key to continue...\"");
-            menu_driver(menu, REQ_TOGGLE_ITEM);
             break;
         case 6:
             system("reboot");
+            return true;
             break;
         case 7:
             return true;
             break;
     }
+    system("read -n 1 -p \"Press any key to continue...\"");
+    menu_driver(menu, REQ_TOGGLE_ITEM);
     return false;
 }
 
