@@ -51,7 +51,7 @@ char * concat2(char * s1, char * s2){
     char * result = malloc(strlen(s1) + strlen(s2) + 1);
     //strcpy(result, s1);
     //strcat(result, s2);
-    snprintf(result, strlen(s1) + strlen(s2), "%s%s", s1, s2);
+    snprintf(result, strlen(s1) + strlen(s2) + 1, "%s%s", s1, s2);
     return result;
 }
 
@@ -60,7 +60,7 @@ char * concat3(char * s1, char * s2, char * s3){
     //strcpy(result, s1);
     //strcat(result, s2);
     //strcat(result, s3);
-    snprintf(result, strlen(s1) + strlen(s2) + strlen(s3), "%s%s%s", s1, s2, s3);
+    snprintf(result, strlen(s1) + strlen(s2) + strlen(s3) + 1, "%s%s%s", s1, s2, s3);
     return result;
 }
 
@@ -80,7 +80,7 @@ bool handleSelection(int id, MENU * menu){
     system("clear");
     switch(id){
         case 1:
-            printw("Installing packages and updating system");
+            info("Installing packages and updating system");
             //install packages
             system("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
                             xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
