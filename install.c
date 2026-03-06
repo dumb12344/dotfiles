@@ -125,10 +125,10 @@ bool handleSelection(int id, MENU * menu){
             system("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
             system("cp -rf configs/. ~");
-            fputs(ANSI_COLOR_CYAN "Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
+            info("Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n)");
             char test;
             test = getch();
-            if(test == 'y'){
+            if(test == 'n'){
                 system("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
             else{
