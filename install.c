@@ -125,6 +125,16 @@ bool handleSelection(int id, MENU * menu){
             system("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
             system("cp -rf configs/. ~");
+            fputs(ANSI_COLOR_CYAN "Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
+            char test[2];
+            fgets(test,2,stdin);
+            if(strcmp(test,"n") == 0){
+                system("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
+            }
+            else{
+                system("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
+            }
+            /*
             fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
             char test[2];
             fgets(test,2,stdin);
@@ -133,7 +143,7 @@ bool handleSelection(int id, MENU * menu){
             }
             else{
                 system("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
-            }
+            }*/
             system(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
             int e = system("xrandr");
             if(e != 0){
