@@ -85,7 +85,7 @@ bool handleSelection(int id, MENU * menu){
             system("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
                             xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
                             xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
-                            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme --needed"
+                            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
             );
             //enable ly
             system("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
@@ -134,7 +134,15 @@ bool handleSelection(int id, MENU * menu){
             else{
                 system("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
             }
-            info(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
+            system(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
+            int e = system("xrandr");
+            if(e != 0){
+                info("Remember to re-run config application in desktop to apply display scaling.");
+            }
+            else{
+                //definately not vibecoded
+                system("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/\" ~/.config/niri/config.kdl");
+            }
             break;
         case 5:
             info("Detecting problems");
