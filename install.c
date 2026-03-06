@@ -76,19 +76,23 @@ void bad(char * inText){
     puts(concat3(ANSI_COLOR_RED, inText, ANSI_COLOR_RESET));
 }
 
+int execute(char * command){
+    return system(command);
+}
+
 bool handleSelection(int id, MENU * menu){
-    system("clear");
+    execute("clear");
     switch(id){
         case 1:
             info("Installing packages and updating system");
             //install packages
-            system("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
+            execute("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
                             xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
                             xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
                             ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
             );
             //enable ly
-            system("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
+            execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
             break;
         case 2:
             if (access("/usr/bin/yay", F_OK) == 0) {
@@ -97,64 +101,64 @@ bool handleSelection(int id, MENU * menu){
                 bad("yay is not installed.");
                 //I don't need debug packages
                 info("Disabling debug in makepkg.conf");
-                system("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
+                execute("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
                 //create temp directory
                 info("Creating temporary directory");
                 char template[] = "/tmp/yay.XXXXXX";
                 char * dir_name = mkdtemp(template);
                 info(concat2("Created directory ", dir_name));
                 //clone into temp directory and save current directory
-                system(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
+                execute(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
                 char dotsdir[1000];
                 getcwd(dotsdir, sizeof(dotsdir));
                 //make package and go back to previous directory
                 chdir(dir_name);
-                system("makepkg -si");
+                execute("makepkg -si");
                 chdir(dotsdir);
                 //remove package directory
-                system(concat2("rm -rf ", dir_name));
+                execute(concat2("rm -rf ", dir_name));
             }
             break;
         case 3:
             info("Installing AUR packages");
-            system("yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed");
+            execute("yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed");
             break;
         case 4:
             info("Applying configs");
             info("Changing shell to zsh");
-            system("sudo chsh test -s /bin/zsh");
+            execute("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
-            system("cp -rf configs/. ~");
+            execute("cp -rf configs/. ~");
             info("Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n)");
             char test[2];
             fgets(test,2,stdin);
-            system("read && mkdir ~/Pictures/Wallpapers");
+            execute("read && mkdir ~/Pictures/Wallpapers");
             if(strcmp(test,"n") == 0){
-                system("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
+                execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
             else{
-                system("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
+                execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
             }
             /*
             fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
             char test[2];
             fgets(test,2,stdin);
             if(strcmp(test,"n") == 0){
-                system("ln -sf ~/Pictures/lightmodewallpapers ~/Pictures/Wallpapers");
+                execute("ln -sf ~/Pictures/lightmodewallpapers ~/Pictures/Wallpapers");
             }
             else{
-                system("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
+                execute("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
             }*/
             info("Applying noctalia configs");
-            system(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
+            execute(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
             info("Applying display scaling");
-            int e = system("xrandr");
+            int e = execute("xrandr");
             if(e != 0){
                 info("Remember to re-run config application in desktop to apply display scaling.");
             }
             else{
                 //definately not vibecoded
-                system("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/\" ~/.config/niri/config.kdl");
+                execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/\" ~/.config/niri/config.kdl");
             }
             break;
         case 5:
@@ -179,14 +183,14 @@ bool handleSelection(int id, MENU * menu){
             }
             break;
         case 6:
-            system("reboot");
+            execute("reboot");
             return true;
             break;
         case 7:
             return true;
             break;
     }
-    system(concat2("read -n 1 -p \"",ANSI_COLOR_CYAN "Press any key to continue...\"" ANSI_COLOR_RESET));
+    execute(concat2("read -n 1 -p \"",ANSI_COLOR_CYAN "Press any key to continue...\"" ANSI_COLOR_RESET));
     menu_driver(menu, REQ_TOGGLE_ITEM);
     return false;
 }
