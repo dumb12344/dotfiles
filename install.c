@@ -102,7 +102,7 @@ bool handleSelection(int id, MENU * menu){
                 info("Creating temporary directory");
                 char template[] = "/tmp/yay.XXXXXX";
                 char * dir_name = mkdtemp(template);
-                info(concat2("Created directory", dir_name));
+                info(concat2("Created directory ", dir_name));
                 //clone into temp directory and save current directory
                 system(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
                 char dotsdir[1000];
