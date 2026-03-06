@@ -126,9 +126,9 @@ bool handleSelection(int id, MENU * menu){
             info("Copying user configs");
             system("cp -rf configs/. ~");
             info("Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n)");
-            char test;
-            test = getch();
-            if(test == 'n'){
+            char test[2];
+            fgets(test,2,stdin);;
+            if(strcmp(test,"n") == 0){
                 system("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
             else{
@@ -144,7 +144,9 @@ bool handleSelection(int id, MENU * menu){
             else{
                 system("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
             }*/
+            info("Applying noctalia configs");
             system(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
+            info("Applying display scaling");
             int e = system("xrandr");
             if(e != 0){
                 info("Remember to re-run config application in desktop to apply display scaling.");
