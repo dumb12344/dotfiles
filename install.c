@@ -128,11 +128,12 @@ bool handleSelection(int id, MENU * menu){
             info("Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n)");
             char test[2];
             fgets(test,2,stdin);
-            system("mkdir ~/Pictures/Wallpapers");
             if(strcmp(test,"n") == 0){
+                system("mkdir ~/Pictures/Wallpapers");
                 system("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
             else{
+                system("mkdir ~/Pictures/Wallpapers");
                 system("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
             }
             /*
