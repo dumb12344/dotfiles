@@ -164,7 +164,7 @@ bool handleSelection(int id, MENU * menu){
             return true;
             break;
     }
-    system("read -n 1 -p \"Press any key to continue...\"");
+    system(concat2("read -n 1 -p \"",ANSI_COLOR_CYAN "Press any key to continue...\"" ANSI_COLOR_RESET));
     menu_driver(menu, REQ_TOGGLE_ITEM);
     return false;
 }
