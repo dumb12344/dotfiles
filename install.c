@@ -136,7 +136,7 @@ bool handleSelection(int id, MENU * menu){
             }
             break;
         case 5:
-            info("Detecting problems" ANSI_COLOR_RESET);
+            info("Detecting problems");
             if (access("/usr/sbin/qs", F_OK) == 0){
                 good("Quickshell is installed properly");
             }
