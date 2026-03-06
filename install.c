@@ -126,9 +126,9 @@ bool handleSelection(int id, MENU * menu){
             info("Copying user configs");
             system("cp -rf configs/. ~");
             fputs(ANSI_COLOR_CYAN "Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
-            char test[2];
-            fgets(test,2,stdin);
-            if(strcmp(test,"n") == 0){
+            char test;
+            test = getch();
+            if(test == 'y'){
                 system("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
             else{
