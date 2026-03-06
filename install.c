@@ -134,6 +134,7 @@ bool handleSelection(int id, MENU * menu){
             else{
                 system("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
             }
+            info(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
             break;
         case 5:
             info("Detecting problems");
