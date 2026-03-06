@@ -129,11 +129,12 @@ bool handleSelection(int id, MENU * menu){
             execute("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
             execute("cp -rf configs/. ~");
-            info("Do you want to use dark mode (y) or light mode wallpapers (n) (Y/n)");
+            info("Do you want to use dark mode (y) or light mode (n) (Y/n)");
             char test[2];
             fgets(test,2,stdin);
             execute("read && mkdir ~/Pictures/Wallpapers");
             if(strcmp(test,"n") == 0){
+                execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
                 execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
             else{
