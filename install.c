@@ -142,7 +142,7 @@ bool handleSelection(int id, MENU * menu) {
             execute("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
             execute("cp -rf configs/. ~");
-            system("BROWSER=$(cat /tmp/browser); sed -ie 's/browserchoice/$BROWSER/' ~/.config/niri/config.kdl");
+            system("BROWSER=$(cat /tmp/browser); sed -ie \"s/browserchoice/$BROWSER/g\" ~/.config/niri/config.kdl");
             info("Do you want to use dark mode (y) or light mode (n) (Y/n)");
             // read choice and apply settings
             char test[2];
@@ -168,13 +168,13 @@ bool handleSelection(int id, MENU * menu) {
             info("Applying noctalia configs");
             execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
             info("Applying display scaling");
-            int e = execute("xrandr");
+            int e = execute("xrandr > /dev/null");
             if (e != 0) {
                 info("Remember to re-run config application in desktop to apply display scaling.");
             }
             else {
                 //definitely not vibecoded
-                execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/\" ~/.config/niri/config.kdl");
+                execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
             }
             break;
         case 5:
