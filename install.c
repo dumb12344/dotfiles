@@ -147,7 +147,7 @@ bool handleSelection(int id, MENU * menu) {
             // read choice and apply settings
             char test[2];
             fgets(test, 2, stdin);
-            execute("read && mkdir ~/Pictures/Wallpapers");
+            execute("read && mkdir -p ~/Pictures/Wallpapers");
             if (strcmp(test, "n") == 0) {
                 execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
                 execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
