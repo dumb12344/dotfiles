@@ -21,7 +21,7 @@ char * choices[] = {
     "Detect problems",
     "Reboot",
     "Exit",
-    (char *)NULL,
+    (char *) NULL,
 };
 
 char * choiceids[] = {
@@ -32,7 +32,7 @@ char * choiceids[] = {
     "5",
     "6",
     "7",
-    (char *)NULL,
+    (char *) NULL,
 };
 
 bool finishedtasks[] = {
@@ -46,7 +46,7 @@ bool finishedtasks[] = {
     false,
 };
 
-char * concat2(char * s1, char * s2){
+char * concat2(char * s1, char * s2) {
     // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
     char * result = malloc(strlen(s1) + strlen(s2) + 1);
     //strcpy(result, s1);
@@ -55,7 +55,7 @@ char * concat2(char * s1, char * s2){
     return result;
 }
 
-char * concat3(char * s1, char * s2, char * s3){
+char * concat3(char * s1, char * s2, char * s3) {
     char * result = malloc(strlen(s1) + strlen(s2) + strlen(s3) + 1);
     //strcpy(result, s1);
     //strcat(result, s2);
@@ -64,25 +64,25 @@ char * concat3(char * s1, char * s2, char * s3){
     return result;
 }
 
-void info(char * inText){
+void info(char * inText) {
     puts(concat3(ANSI_COLOR_CYAN, inText, ANSI_COLOR_RESET));
 }
 
-void good(char * inText){
+void good(char * inText) {
     puts(concat3(ANSI_COLOR_GREEN, inText, ANSI_COLOR_RESET));
 }
 
-void bad(char * inText){
+void bad(char * inText) {
     puts(concat3(ANSI_COLOR_RED, inText, ANSI_COLOR_RESET));
 }
 
-int execute(char * command){
+int execute(char * command) {
     return system(command);
 }
 
-bool handleSelection(int id, MENU * menu){
+bool handleSelection(int id, MENU * menu) {
     execute("clear");
-    switch(id){
+    switch(id) {
         case 1:
             info("Installing packages and updating system");
             //install packages
@@ -121,7 +121,20 @@ bool handleSelection(int id, MENU * menu){
             break;
         case 3:
             info("Installing AUR packages");
-            execute("yay -S noctalia-shell zsh-theme-powerlevel10k-git pokeget --needed");
+            info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
+            // read choice and set browser shortcut for niri
+            char * browser;
+            char choice[2];
+            fgets(choice, 2, stdin);
+            execute("read");
+            browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
+            // write browser to /tmp/browser for config
+            FILE *fptr;
+            fptr = fopen("/tmp/browser", "w");
+            fprintf(fptr, "%s", browser);
+            fclose(fptr);
+            // install binary for browser choice
+            execute(concat3("yay -S --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
             break;
         case 4:
             info("Applying configs");
@@ -129,57 +142,60 @@ bool handleSelection(int id, MENU * menu){
             execute("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
             execute("cp -rf configs/. ~");
+            system("BROWSER=$(cat /tmp/browser); sed -ie 's/browserchoice/$BROWSER/' ~/.config/niri/config.kdl");
             info("Do you want to use dark mode (y) or light mode (n) (Y/n)");
+            // read choice and apply settings
             char test[2];
-            fgets(test,2,stdin);
+            fgets(test, 2, stdin);
             execute("read && mkdir ~/Pictures/Wallpapers");
-            if(strcmp(test,"n") == 0){
+            if (strcmp(test, "n") == 0) {
                 execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
                 execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
-            else{
+            else {
                 execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
             }
             /*
             fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
             char test[2];
-            fgets(test,2,stdin);
-            if(strcmp(test,"n") == 0){
+            fgets(test, 2, stdin);
+            if (strcmp(test, "n") == 0) {
                 execute("ln -sf ~/Pictures/lightmodewallpapers ~/Pictures/Wallpapers");
             }
-            else{
+            else {
                 execute("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
             }*/
             info("Applying noctalia configs");
-            execute(concat3("sed -ie 's/username/",getenv("USER"),"/' ~/.config/noctalia/settings.json"));
+            execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
             info("Applying display scaling");
             int e = execute("xrandr");
-            if(e != 0){
+            if (e != 0) {
                 info("Remember to re-run config application in desktop to apply display scaling.");
             }
-            else{
-                //definately not vibecoded
+            else {
+                //definitely not vibecoded
                 execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/\" ~/.config/niri/config.kdl");
             }
             break;
         case 5:
             info("Detecting problems");
-            if (access("/usr/sbin/qs", F_OK) == 0){
+            // check if binaries exist
+            if (access("/usr/sbin/qs", F_OK) == 0) {
                 good("Quickshell is installed properly");
             }
-            else{
+            else {
                 bad("Quickshell wasn\'t installed properly");
             }
-            if (access("/etc/xdg/quickshell/noctalia-shell/shell.qml", F_OK) == 0){
+            if (access("/etc/xdg/quickshell/noctalia-shell/shell.qml", F_OK) == 0) {
                 good("Noctalia Shell is installed properly");
             }
-            else{
+            else {
                 bad("Noctalia Shell wasn\'t installed properly");
             }
-            if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0){
+            if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0) {
                 good("Powerlevel10k is installed properly");
             }
-            else{
+            else {
                 bad("Powerlevel10k wasn\'t installed properly");
             }
             break;
@@ -191,28 +207,28 @@ bool handleSelection(int id, MENU * menu){
             return true;
             break;
     }
-    execute(concat2("read -n 1 -p \"",ANSI_COLOR_CYAN "Press any key to continue...\"" ANSI_COLOR_RESET));
+    execute(concat2("read -n 1 -p \"", ANSI_COLOR_CYAN "Press any key to continue...\"" ANSI_COLOR_RESET));
     menu_driver(menu, REQ_TOGGLE_ITEM);
     return false;
 }
 
-void print_in_middle(WINDOW * win, int starty, int startx, int width, char * string, chtype color){
+void print_in_middle(WINDOW * win, int starty, int startx, int width, char * string, chtype color) {
     int length, x, y;
 	float temp;
 
-	if(win == NULL)
+	if (win == NULL)
 		win = stdscr;
 	getyx(win, y, x);
-	if(startx != 0)
+	if (startx != 0)
 		x = startx;
-	if(starty != 0)
+	if (starty != 0)
 		y = starty;
-	if(width == 0)
+	if (width == 0)
 		width = 80;
 
 	length = strlen(string);
-	temp = (width - length)>>1;
-	x = startx + (int)temp;
+	temp = (width - length) >> 1;
+	x = startx + (int) temp;
 	wattron(win, color);
 	mvwprintw(win, y, x, "%s", string);
 	wattroff(win, color);
@@ -220,10 +236,10 @@ void print_in_middle(WINDOW * win, int starty, int startx, int width, char * str
 }
 
 
-void determineitems(ITEM ** items, int n_choices){
-    for(int i = 0; i < n_choices; ++i){ 
-        char * prefix=choiceids[i];
-        if(i <= n_choices - 2){
+void determineitems(ITEM ** items, int n_choices) {
+    for(int i = 0; i < n_choices; ++i) { 
+        char * prefix = choiceids[i];
+        if (i <= n_choices - 2) {
             prefix = concat2(finishedtasks[i] ? "(Finished) " : "           ", prefix);
         }
         items[i] = new_item(prefix, choices[i]);
@@ -231,7 +247,7 @@ void determineitems(ITEM ** items, int n_choices){
     }
 }
 
-int main(){
+int main() {
     ITEM ** items;
 	int c;
 	MENU * menu;
@@ -248,18 +264,18 @@ int main(){
     n_choices = ARRAY_SIZE(choices);
     items = (ITEM **) calloc(n_choices, sizeof(ITEM *));
     determineitems(items, n_choices);
-    int x,y;
+    int x, y;
     getmaxyx(stdscr, x, y);
 	menu = new_menu((ITEM **) items);
     menu_opts_off(menu, O_ONEVALUE);
     menu_win = newwin(x / 2, y / 3, x / 3, y / 3);
     keypad(menu_win, TRUE);
     set_menu_win(menu, menu_win);
-    set_menu_sub(menu, derwin(menu_win, 7, 40, 3, x/5));
+    set_menu_sub(menu, derwin(menu_win, 7, 40, 3, x / 5));
     set_menu_format(menu, 12, 1);
     set_menu_mark(menu, " * ");
     box(menu_win, 0, 0);
-	print_in_middle(menu_win, 1, 0, y/3, "Dotfiles", COLOR_PAIR(2));
+	print_in_middle(menu_win, 1, 0, y / 3, "Dotfiles", COLOR_PAIR(2));
 	mvwaddch(menu_win, 2, 0, ACS_LTEE);
 	mvwhline(menu_win, 2, 1, ACS_HLINE, y / 3 - 2);
 	mvwaddch(menu_win, 2, y / 3 - 1, ACS_RTEE);
@@ -271,9 +287,9 @@ int main(){
     post_menu(menu);
 	refresh();
 
-	while(c != 'q' && !end){
+	while(c != 'q' && !end) {
         c = wgetch(menu_win);
-        switch(c){
+        switch(c) {
             case KEY_DOWN:
 				menu_driver(menu, REQ_DOWN_ITEM);
 				break;
@@ -291,7 +307,7 @@ int main(){
         wrefresh(menu_win);
 	}
     unpost_menu(menu);
-    for(int i = 0; i < n_choices; ++i){ 
+    for(int i = 0; i < n_choices; ++i) { 
         free_item(items[i]);
     }
     free_menu(menu);
