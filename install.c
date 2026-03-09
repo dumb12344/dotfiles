@@ -175,6 +175,7 @@ bool handleSelection(int id, MENU * menu) {
             else {
                 //definitely not vibecoded
                 execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
+                execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
             }
             break;
         case 5:
