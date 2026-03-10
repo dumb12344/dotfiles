@@ -121,18 +121,25 @@ bool handleSelection(int id, MENU * menu) {
             break;
         case 3:
             info("Installing AUR packages");
-            info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
-            // read choice and set browser shortcut for niri
-            char * browser;
-            char choice[2];
-            fgets(choice, 2, stdin);
-            execute("read");
-            browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
-            // write browser to /tmp/browser for config
-            FILE *fptr;
-            fptr = fopen("/tmp/browser", "w");
-            fprintf(fptr, "%s", browser);
-            fclose(fptr);
+            char * browser = malloc(1000);
+            FILE * fptr;
+            if (access("browser", F_OK) == 0){
+                fptr = fopen("browser", "r");
+                fscanf(fptr, "%s", browser);
+                fclose(fptr);
+            }
+            else{
+                info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
+                // read choice and set browser shortcut for niri
+                char choice[2];
+                fgets(choice, 2, stdin);
+                //execute("read");
+                browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
+                // write browser to /tmp/browser for config
+                fptr = fopen("browser", "w");
+                fprintf(fptr, "%s", browser);
+                fclose(fptr);
+            }
             // install binary for browser choice
             execute(concat3("yay -S --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
             break;
@@ -142,12 +149,12 @@ bool handleSelection(int id, MENU * menu) {
             execute("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
             execute("cp -rf configs/. ~");
-            system("BROWSER=$(cat /tmp/browser); sed -ie \"s/browserchoice/$BROWSER/g\" ~/.config/niri/config.kdl");
+            system("BROWSER=$(cat browser); sed -ie \"s/browserchoice/$BROWSER/g\" ~/.config/niri/config.kdl");
             info("Do you want to use dark mode (y) or light mode (n) (Y/n)");
             // read choice and apply settings
             char test[2];
             fgets(test, 2, stdin);
-            execute("read && mkdir -p ~/Pictures/Wallpapers");
+            execute("mkdir -p ~/Pictures/Wallpapers");
             if (strcmp(test, "n") == 0) {
                 execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
                 execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
