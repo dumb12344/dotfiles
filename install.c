@@ -11,6 +11,9 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 
+// idk where to put this
+FILE * fptr;
+
 // https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
 // ty to https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
 char * choices[] = {
@@ -49,17 +52,12 @@ bool finishedtasks[] = {
 char * concat2(char * s1, char * s2) {
     // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
     char * result = malloc(strlen(s1) + strlen(s2) + 1);
-    //strcpy(result, s1);
-    //strcat(result, s2);
     snprintf(result, strlen(s1) + strlen(s2) + 1, "%s%s", s1, s2);
     return result;
 }
 
 char * concat3(char * s1, char * s2, char * s3) {
     char * result = malloc(strlen(s1) + strlen(s2) + strlen(s3) + 1);
-    //strcpy(result, s1);
-    //strcat(result, s2);
-    //strcat(result, s3);
     snprintf(result, strlen(s1) + strlen(s2) + strlen(s3) + 1, "%s%s%s", s1, s2, s3);
     return result;
 }
@@ -85,13 +83,13 @@ bool handleSelection(int id, MENU * menu) {
     switch(id) {
         case 1:
             info("Installing packages and updating system");
-            //install packages
+            // install packages
             execute("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
                             xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
                             xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
                             ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
             );
-            //enable ly
+            // enable ly
             execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
             break;
         case 2:
@@ -99,30 +97,29 @@ bool handleSelection(int id, MENU * menu) {
                 good("yay is already installed.");
             } else {
                 bad("yay is not installed.");
-                //I don't need debug packages
+                // I don't need debug packages
                 info("Disabling debug in makepkg.conf");
                 execute("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
-                //create temp directory
+                // create temp directory
                 info("Creating temporary directory");
                 char template[] = "/tmp/yay.XXXXXX";
                 char * dir_name = mkdtemp(template);
                 info(concat2("Created directory ", dir_name));
-                //clone into temp directory and save current directory
+                // clone into temp directory and save current directory
                 execute(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
                 char dotsdir[1000];
                 getcwd(dotsdir, sizeof(dotsdir));
-                //make package and go back to previous directory
+                // make package and go back to previous directory
                 chdir(dir_name);
                 execute("makepkg -si");
                 chdir(dotsdir);
-                //remove package directory
+                // remove package directory
                 execute(concat2("rm -rf ", dir_name));
             }
             break;
         case 3:
             info("Installing AUR packages");
-            char * browser = malloc(1000);
-            FILE * fptr;
+            char * browser = malloc(100);
             if (access("browser", F_OK) == 0){
                 fptr = fopen("browser", "r");
                 fscanf(fptr, "%s", browser);
@@ -133,9 +130,8 @@ bool handleSelection(int id, MENU * menu) {
                 // read choice and set browser shortcut for niri
                 char choice[2];
                 fgets(choice, 2, stdin);
-                //execute("read");
                 browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
-                // write browser to /tmp/browser for config
+                // write browser to ./browser for config
                 fptr = fopen("browser", "w");
                 fprintf(fptr, "%s", browser);
                 fclose(fptr);
@@ -148,19 +144,30 @@ bool handleSelection(int id, MENU * menu) {
             info("Changing shell to zsh");
             execute("sudo chsh test -s /bin/zsh");
             info("Copying user configs");
-            execute("cp -rf configs/. ~");
+            execute("cp -rfi configs/. ~");
             system("BROWSER=$(cat browser); sed -ie \"s/browserchoice/$BROWSER/g\" ~/.config/niri/config.kdl");
-            info("Do you want to use dark mode (y) or light mode (n) (Y/n)");
-            // read choice and apply settings
-            char test[2];
-            fgets(test, 2, stdin);
+            char * darkmode = malloc(10);
+            if (access("darkmode", F_OK) == 0){
+                fptr = fopen("darkmode", "r");
+                fscanf(fptr, "%s", darkmode);
+                fclose(fptr);
+            }
+            else{
+                info("Do you want to use Dark mode? (Y/n)");
+                char choice[2];
+                fgets(choice, 2, stdin);
+                darkmode = strcmp(choice, "n") == 0 ? "false" : "true";
+                fptr = fopen("darkmode", "w");
+                fprintf(fptr, "%s", darkmode);
+                fclose(fptr);
+            }
             execute("mkdir -p ~/Pictures/Wallpapers");
-            if (strcmp(test, "n") == 0) {
-                execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
-                execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
+            if (strcmp(darkmode, "true") == 0) {
+                execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
             }
             else {
-                execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
+                execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
+                execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
             }
             /*
             fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
@@ -180,7 +187,7 @@ bool handleSelection(int id, MENU * menu) {
                 info("Remember to re-run config application in desktop to apply display scaling.");
             }
             else {
-                //definitely not vibecoded
+                // definitely not vibecoded
                 execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
                 execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
             }
@@ -251,7 +258,6 @@ void determineitems(ITEM ** items, int n_choices) {
             prefix = concat2(finishedtasks[i] ? "(Finished) " : "           ", prefix);
         }
         items[i] = new_item(prefix, choices[i]);
-        //items[i] = new_item(choiceids[i], choices[i]);
     }
 }
 
