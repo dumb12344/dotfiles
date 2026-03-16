@@ -244,6 +244,8 @@ binds {
     Mod+B hotkey-overlay-title="Open Browser: browserchoice" { spawn-sh "browserchoice"; }
     Mod+E hotkey-overlay-title="Open File Manager: dolphin" { spawn-sh "dolphin"; }
     Mod+X hotkey-overlay-title="Open Session Menu" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
+    //Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "kill -9 $(niri msg pick-window | grep PID | sed -e 's/.*PID: //')"; }
+    Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "xkill"; }
 
     // Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
