@@ -3,5 +3,6 @@
 source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 
 export MANPAGER='nvim +Man!'
+alias ls='ls --color=always'
 
 pokeget random --hide-name

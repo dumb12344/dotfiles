@@ -15,7 +15,7 @@
 FILE * fptr;
 
 // https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
-// ty to https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
+// https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
 char * choices[] = {
     "Install packages",
     "Install yay AUR helper",
@@ -78,141 +78,161 @@ int execute(char * command) {
     return system(command);
 }
 
+void installPackages() {
+    info("Installing packages and updating system");
+    // install packages
+    execute("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
+                    xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
+                    xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
+                    ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
+    );
+    // enable ly
+    execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
+}
+
+void installYay() {
+    if (access("/usr/bin/yay", F_OK) == 0) {
+        good("yay is already installed.");
+    } else {
+        bad("yay is not installed.");
+        // I don't need debug packages
+        info("Disabling debug packages in makepkg.conf");
+        execute("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
+        // create temp directory
+        info("Creating temporary directory");
+        char template[] = "/tmp/yay.XXXXXX";
+        char * dir_name = mkdtemp(template);
+        info(concat2("Created directory ", dir_name));
+        // clone into temp directory and save current directory
+        execute(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
+        char dotsdir[1000];
+        getcwd(dotsdir, sizeof(dotsdir));
+        // make package and go back to previous directory
+        chdir(dir_name);
+        execute("makepkg -si");
+        chdir(dotsdir);
+        // remove package directory
+        execute(concat2("rm -rf ", dir_name));
+    }
+}
+
+void installAurPackages() {
+    info("Installing AUR packages");
+    char * browser = malloc(100);
+    if (access("browser", F_OK) == 0) {
+        fptr = fopen("browser", "r");
+        fscanf(fptr, "%s", browser);
+        fclose(fptr);
+    }
+    else {
+        info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
+        // read choice and set browser shortcut for niri
+        char choice[2];
+        fgets(choice, 2, stdin);
+        browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
+        // write browser to ./browser for config
+        fptr = fopen("browser", "w");
+        fprintf(fptr, "%s", browser);
+        fclose(fptr);
+    }
+    // install binary for browser choice
+    execute(concat3("yay -S --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
+}
+
+void applyConfigs() {
+    info("Applying configs");
+    info("Changing shell to zsh");
+    execute("sudo chsh test -s /bin/zsh");
+    info("Copying user configs");
+    execute("cp -rf configs/. ~");
+    execute("sed -ie \"s/browserchoice/$(cat browser)/g\" ~/.config/niri/config.kdl");
+    char * darkmode = malloc(10);
+    if (access("darkmode", F_OK) == 0) {
+        fptr = fopen("darkmode", "r");
+        fscanf(fptr, "%s", darkmode);
+        fclose(fptr);
+    }
+    else {
+        info("Do you want to use Dark mode? (Y/n)");
+        char choice[2];
+        fgets(choice, 2, stdin);
+        darkmode = strcmp(choice, "n") == 0 ? "false" : "true";
+        fptr = fopen("darkmode", "w");
+        fprintf(fptr, "%s", darkmode);
+        fclose(fptr);
+    }
+    execute("mkdir -p ~/Pictures/Wallpapers");
+    if (strcmp(darkmode, "true") == 0) {
+        execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
+    }
+    else {
+        execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
+        execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
+    }
+    /*
+    fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
+    char test[2];
+    fgets(test, 2, stdin);
+    if (strcmp(test, "n") == 0) {
+        execute("ln -sf ~/Pictures/lightmodewallpapers ~/Pictures/Wallpapers");
+    }
+    else {
+        execute("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
+    }*/
+    info("Applying noctalia configs");
+    execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
+    info("Applying display scaling");
+    int e = execute("xrandr > /dev/null");
+    if (e != 0) {
+        info("Remember to re-run config application in desktop to apply display scaling.");
+    }
+    else {
+        // definitely not vibecoded
+        execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
+        execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
+    }
+}
+
+void detectProblems() {
+    info("Detecting problems");
+    // check if binaries exist
+    if (access("/usr/sbin/qs", F_OK) == 0) {
+        good("Quickshell is installed properly");
+    }
+    else {
+        bad("Quickshell wasn\'t installed properly");
+    }
+    if (access("/etc/xdg/quickshell/noctalia-shell/shell.qml", F_OK) == 0) {
+        good("Noctalia Shell is installed properly");
+    }
+    else {
+        bad("Noctalia Shell wasn\'t installed properly");
+    }
+    if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0) {
+        good("Powerlevel10k is installed properly");
+    }
+    else {
+        bad("Powerlevel10k wasn\'t installed properly");
+    }
+}
+
 bool handleSelection(int id, MENU * menu) {
     execute("clear");
     switch(id) {
         case 1:
-            info("Installing packages and updating system");
-            // install packages
-            execute("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
-                            xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
-                            xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
-                            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
-            );
-            // enable ly
-            execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
+            installPackages();
             break;
         case 2:
-            if (access("/usr/bin/yay", F_OK) == 0) {
-                good("yay is already installed.");
-            } else {
-                bad("yay is not installed.");
-                // I don't need debug packages
-                info("Disabling debug in makepkg.conf");
-                execute("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
-                // create temp directory
-                info("Creating temporary directory");
-                char template[] = "/tmp/yay.XXXXXX";
-                char * dir_name = mkdtemp(template);
-                info(concat2("Created directory ", dir_name));
-                // clone into temp directory and save current directory
-                execute(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
-                char dotsdir[1000];
-                getcwd(dotsdir, sizeof(dotsdir));
-                // make package and go back to previous directory
-                chdir(dir_name);
-                execute("makepkg -si");
-                chdir(dotsdir);
-                // remove package directory
-                execute(concat2("rm -rf ", dir_name));
-            }
+            installYay();
             break;
         case 3:
-            info("Installing AUR packages");
-            char * browser = malloc(100);
-            if (access("browser", F_OK) == 0){
-                fptr = fopen("browser", "r");
-                fscanf(fptr, "%s", browser);
-                fclose(fptr);
-            }
-            else{
-                info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
-                // read choice and set browser shortcut for niri
-                char choice[2];
-                fgets(choice, 2, stdin);
-                browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
-                // write browser to ./browser for config
-                fptr = fopen("browser", "w");
-                fprintf(fptr, "%s", browser);
-                fclose(fptr);
-            }
-            // install binary for browser choice
-            execute(concat3("yay -S --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
+            installAurPackages();
             break;
         case 4:
-            info("Applying configs");
-            info("Changing shell to zsh");
-            execute("sudo chsh test -s /bin/zsh");
-            info("Copying user configs");
-            execute("cp -rfi configs/. ~");
-            system("BROWSER=$(cat browser); sed -ie \"s/browserchoice/$BROWSER/g\" ~/.config/niri/config.kdl");
-            char * darkmode = malloc(10);
-            if (access("darkmode", F_OK) == 0){
-                fptr = fopen("darkmode", "r");
-                fscanf(fptr, "%s", darkmode);
-                fclose(fptr);
-            }
-            else{
-                info("Do you want to use Dark mode? (Y/n)");
-                char choice[2];
-                fgets(choice, 2, stdin);
-                darkmode = strcmp(choice, "n") == 0 ? "false" : "true";
-                fptr = fopen("darkmode", "w");
-                fprintf(fptr, "%s", darkmode);
-                fclose(fptr);
-            }
-            execute("mkdir -p ~/Pictures/Wallpapers");
-            if (strcmp(darkmode, "true") == 0) {
-                execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
-            }
-            else {
-                execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
-                execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
-            }
-            /*
-            fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
-            char test[2];
-            fgets(test, 2, stdin);
-            if (strcmp(test, "n") == 0) {
-                execute("ln -sf ~/Pictures/lightmodewallpapers ~/Pictures/Wallpapers");
-            }
-            else {
-                execute("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
-            }*/
-            info("Applying noctalia configs");
-            execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
-            info("Applying display scaling");
-            int e = execute("xrandr > /dev/null");
-            if (e != 0) {
-                info("Remember to re-run config application in desktop to apply display scaling.");
-            }
-            else {
-                // definitely not vibecoded
-                execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
-                execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
-            }
+            applyConfigs();
             break;
         case 5:
-            info("Detecting problems");
-            // check if binaries exist
-            if (access("/usr/sbin/qs", F_OK) == 0) {
-                good("Quickshell is installed properly");
-            }
-            else {
-                bad("Quickshell wasn\'t installed properly");
-            }
-            if (access("/etc/xdg/quickshell/noctalia-shell/shell.qml", F_OK) == 0) {
-                good("Noctalia Shell is installed properly");
-            }
-            else {
-                bad("Noctalia Shell wasn\'t installed properly");
-            }
-            if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0) {
-                good("Powerlevel10k is installed properly");
-            }
-            else {
-                bad("Powerlevel10k wasn\'t installed properly");
-            }
+            detectProblems();
             break;
         case 6:
             execute("reboot");
@@ -310,6 +330,7 @@ int main() {
 			case KEY_UP:
 				menu_driver(menu, REQ_UP_ITEM);
 				break;
+            // enter key
             case 10:
 				endwin();
                 char * endptr;
@@ -321,9 +342,8 @@ int main() {
         wrefresh(menu_win);
 	}
     unpost_menu(menu);
-    for(int i = 0; i < n_choices; ++i) { 
+    for(int i = 0; i < n_choices; ++i)
         free_item(items[i]);
-    }
     free_menu(menu);
 	endwin();
 }

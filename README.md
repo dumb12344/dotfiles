@@ -1,12 +1,8 @@
 # Arch Dotfiles
 Intended to be installed after a minimal system is setup (e.g. archinstall with minimal profile)
 
-One-liner if you have git, make, and gcc:
-```git clone https://github.com/dumb12344/dotfiles.git && cd dotfiles && make```
-
-If you don't:
 ```
-sudo pacman -Sy git make gcc --needed
+sudo pacman -Sy git base-devel --needed
 git clone https://github.com/dumb12344/dotfiles.git
 cd dotfiles
 make
@@ -23,8 +19,6 @@ cd dotfiles
 ./install.sh
 ```
 -->
-
-(idk if this works on a distro other than arch)
 
 # Credit:
 

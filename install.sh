@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/false
 echo Installing script packages and updating system
 sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
     xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
