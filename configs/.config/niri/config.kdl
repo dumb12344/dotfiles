@@ -239,7 +239,7 @@ binds {
 
     Mod+RETURN hotkey-overlay-title="Open a Terminal: kitty" { spawn-sh "kitty"; }
     Mod+SPACE hotkey-overlay-title="Run an Application" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
-    Super+L hotkey-overlay-title="Lock the Screen" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
+    Mod+L hotkey-overlay-title="Lock the Screen" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
     Mod+V hotkey-overlay-title="Open Clipboard Manager" { spawn-sh "qs -c noctalia-shell ipc call launcher clipboard"; }
     Mod+B hotkey-overlay-title="Open Browser: browserchoice" { spawn-sh "browserchoice"; }
     Mod+E hotkey-overlay-title="Open File Manager: dolphin" { spawn-sh "dolphin"; }
@@ -274,7 +274,7 @@ binds {
     Mod+H     { focus-column-left; }
     Mod+J     { focus-window-down; }
     Mod+K     { focus-window-up; }
-    Mod+L     { focus-column-right; }
+    // Mod+L     { focus-column-right; }
 
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Down  { move-window-down; }
@@ -403,6 +403,7 @@ gestures {
 }
 environment {
   QT_QPA_PLATFORMTHEME "qt6ct"
+  QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
 }
 debug {
   honor-xdg-activation-with-invalid-serial
