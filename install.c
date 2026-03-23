@@ -144,8 +144,10 @@ void applyConfigs() {
     info("Changing shell to zsh");
     execute("sudo chsh test -s /bin/zsh");
     info("Copying user configs");
-    execute("cp -rf configs/. ~");
+    execute("cp -rf home/. ~");
     execute("sed -ie \"s/browserchoice/$(cat browser)/g\" ~/.config/niri/config.kdl");
+    // enable color for pacman/yay
+    execute("sudo sed -ie 's/#Color/Color/' /etc/pacman.conf");
     char * darkmode = malloc(10);
     if (access("darkmode", F_OK) == 0) {
         fptr = fopen("darkmode", "r");
