@@ -5,5 +5,6 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 
 export MANPAGER='nvim +Man!'
 alias ls='ls --color=always'
+alias scc='sudo rm -r /var/cache/pacman/pkg/download-*'
 
 pokeget random --hide-name
