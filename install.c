@@ -91,7 +91,6 @@ void configure() {
         fptr = fopen("browser", "r");
         fscanf(fptr, "%s", browser);
         fclose(fptr);
-        good("Already configured browser");
     }
     else {
         info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
@@ -105,12 +104,11 @@ void configure() {
         fclose(fptr);
         getchar();
     }
-    char * darkmode = malloc(10);
+    darkmode = malloc(10);
     if (access("darkmode", F_OK) == 0) {
         fptr = fopen("darkmode", "r");
         fscanf(fptr, "%s", darkmode);
         fclose(fptr);
-        good("Already configured dark mode");
     }
     else {
         info("Do you want to use Dark mode? (Y/n)");
@@ -164,12 +162,14 @@ void installYay() {
 
 void installAurPackages() {
     info("Installing AUR packages");
+    configure();
     // install binary for browser choice
     execute(concat3("yay -S --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
 }
 
 void applyConfigs() {
     info("Applying configs");
+    configure();
     info("Copying user configs");
     execute("cp -rf home/. ~");
     execute("sed -ie \"s/browserchoice/$(cat browser)/g\" ~/.config/niri/config.kdl");
@@ -183,8 +183,6 @@ void applyConfigs() {
         execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
         execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
     }
-    info("Changing shell to zsh");
-    execute(concat3("sudo chsh ", getenv("USER"), " -s /bin/zsh"));
     /*
     fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
     char test[2];
@@ -209,6 +207,8 @@ void applyConfigs() {
         execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
         execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
     }
+    info("Changing shell to zsh");
+    execute(concat3("sudo chsh ", getenv("USER"), " -s /bin/zsh"));
 }
 
 void detectProblems() {
