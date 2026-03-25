@@ -103,6 +103,7 @@ void configure() {
         fptr = fopen("browser", "w");
         fprintf(fptr, "%s", browser);
         fclose(fptr);
+        getchar();
     }
     char * darkmode = malloc(10);
     if (access("darkmode", F_OK) == 0) {
@@ -119,6 +120,7 @@ void configure() {
         fptr = fopen("darkmode", "w");
         fprintf(fptr, "%s", darkmode);
         fclose(fptr);
+        getchar();
     }
 }
 
