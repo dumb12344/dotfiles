@@ -75,6 +75,7 @@ void bad(char * inText) {
 }
 
 int execute(char * command) {
+    // I can change this to a puts statemenet for debugging
     return system(command);
 }
 
@@ -170,7 +171,7 @@ void applyConfigs() {
         execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
     }
     info("Changing shell to zsh");
-    execute("sudo chsh test -s /bin/zsh");
+    execute(concat3("sudo chsh ", getenv("USER"), " -s /bin/zsh"));
     /*
     fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
     char test[2];
