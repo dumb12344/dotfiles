@@ -14,9 +14,13 @@
 // idk where to put this
 FILE * fptr;
 
+char * browser = "zen-browser";
+char * darkmode = "true";
+
 // https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
 // https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
 char * choices[] = {
+    "Configure",
     "Install packages",
     "Install yay AUR helper",
     "Install AUR packages",
@@ -35,10 +39,12 @@ char * choiceids[] = {
     "5",
     "6",
     "7",
+    "8",
     (char *) NULL,
 };
 
 bool finishedtasks[] = {
+    false,
     false,
     false,
     false,
@@ -77,6 +83,43 @@ void bad(char * inText) {
 int execute(char * command) {
     // I can change this to a puts statemenet for debugging
     return system(command);
+}
+
+void configure() {
+    browser = malloc(100);
+    if (access("browser", F_OK) == 0) {
+        fptr = fopen("browser", "r");
+        fscanf(fptr, "%s", browser);
+        fclose(fptr);
+        good("Already configured browser");
+    }
+    else {
+        info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
+        // read choice and set browser shortcut for niri
+        char choice[2];
+        fgets(choice, 2, stdin);
+        browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
+        // write browser to ./browser for config
+        fptr = fopen("browser", "w");
+        fprintf(fptr, "%s", browser);
+        fclose(fptr);
+    }
+    char * darkmode = malloc(10);
+    if (access("darkmode", F_OK) == 0) {
+        fptr = fopen("darkmode", "r");
+        fscanf(fptr, "%s", darkmode);
+        fclose(fptr);
+        good("Already configured dark mode");
+    }
+    else {
+        info("Do you want to use Dark mode? (Y/n)");
+        char choice[2];
+        fgets(choice, 2, stdin);
+        darkmode = strcmp(choice, "n") == 0 ? "false" : "true";
+        fptr = fopen("darkmode", "w");
+        fprintf(fptr, "%s", darkmode);
+        fclose(fptr);
+    }
 }
 
 void installPackages() {
@@ -119,23 +162,6 @@ void installYay() {
 
 void installAurPackages() {
     info("Installing AUR packages");
-    char * browser = malloc(100);
-    if (access("browser", F_OK) == 0) {
-        fptr = fopen("browser", "r");
-        fscanf(fptr, "%s", browser);
-        fclose(fptr);
-    }
-    else {
-        info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
-        // read choice and set browser shortcut for niri
-        char choice[2];
-        fgets(choice, 2, stdin);
-        browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
-        // write browser to ./browser for config
-        fptr = fopen("browser", "w");
-        fprintf(fptr, "%s", browser);
-        fclose(fptr);
-    }
     // install binary for browser choice
     execute(concat3("yay -S --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
 }
@@ -147,22 +173,6 @@ void applyConfigs() {
     execute("sed -ie \"s/browserchoice/$(cat browser)/g\" ~/.config/niri/config.kdl");
     // enable color for pacman/yay
     execute("sudo sed -ie 's/#Color/Color/' /etc/pacman.conf");
-    char * darkmode = malloc(10);
-    if (access("darkmode", F_OK) == 0) {
-        fptr = fopen("darkmode", "r");
-        fscanf(fptr, "%s", darkmode);
-        fclose(fptr);
-    }
-    else {
-        info("Do you want to use Dark mode? (Y/n)");
-        char choice[2];
-        fgets(choice, 2, stdin);
-        darkmode = strcmp(choice, "n") == 0 ? "false" : "true";
-        fptr = fopen("darkmode", "w");
-        fprintf(fptr, "%s", darkmode);
-        fclose(fptr);
-    }
-    execute("read");
     execute("mkdir -p ~/Pictures/Wallpapers");
     if (strcmp(darkmode, "true") == 0) {
         execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
@@ -226,25 +236,28 @@ bool handleSelection(int id, MENU * menu) {
     execute("clear");
     switch(id) {
         case 1:
-            installPackages();
+            configure();
             break;
         case 2:
-            installYay();
+            installPackages();
             break;
         case 3:
-            installAurPackages();
+            installYay();
             break;
         case 4:
-            applyConfigs();
+            installAurPackages();
             break;
         case 5:
-            detectProblems();
+            applyConfigs();
             break;
         case 6:
+            detectProblems();
+            break;
+        case 7:
             execute("reboot");
             return true;
             break;
-        case 7:
+        case 8:
             return true;
             break;
     }
