@@ -81,10 +81,10 @@ int execute(char * command) {
 void installPackages() {
     info("Installing packages and updating system");
     // install packages
-    execute("sudo pacman -Syu figlet jq git base-devel niri zsh xdg-desktop-portal-gnome \
-                    xwayland-satellite kitty cliphist cava xdg-desktop-portal brightnessctl \
-                    xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
-                    ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
+    execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
+            xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
+            brightnessctl xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
+            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
     );
     // enable ly
     execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
@@ -141,8 +141,6 @@ void installAurPackages() {
 
 void applyConfigs() {
     info("Applying configs");
-    info("Changing shell to zsh");
-    execute("sudo chsh test -s /bin/zsh");
     info("Copying user configs");
     execute("cp -rf home/. ~");
     execute("sed -ie \"s/browserchoice/$(cat browser)/g\" ~/.config/niri/config.kdl");
@@ -171,6 +169,8 @@ void applyConfigs() {
         execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
         execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
     }
+    info("Changing shell to zsh");
+    execute("sudo chsh test -s /bin/zsh");
     /*
     fputs(ANSI_COLOR_CYAN "Do you want to apply dark mode (y) or light mode wallpapers (n) (Y/n) " ANSI_COLOR_RESET, stdout);
     char test[2];
@@ -186,9 +186,11 @@ void applyConfigs() {
     info("Applying display scaling");
     int e = execute("xrandr > /dev/null");
     if (e != 0) {
-        info("Remember to re-run config application in desktop to apply display scaling.");
+        bad("Display not found");
+        info("Remember to re-run config application in niri to apply display scaling.");
     }
     else {
+        good("Display found");
         // definitely not vibecoded
         execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
         execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
