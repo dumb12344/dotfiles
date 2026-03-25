@@ -162,6 +162,7 @@ void applyConfigs() {
         fprintf(fptr, "%s", darkmode);
         fclose(fptr);
     }
+    execute("read");
     execute("mkdir -p ~/Pictures/Wallpapers");
     if (strcmp(darkmode, "true") == 0) {
         execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
