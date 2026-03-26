@@ -124,6 +124,8 @@ void configure() {
 
 void installPackages() {
     info("Installing packages and updating system");
+    // enable color for pacman/yay
+    execute("sudo sed -ie 's/#Color/Color/' /etc/pacman.conf");
     // install packages
     execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
             xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
@@ -173,8 +175,6 @@ void applyConfigs() {
     info("Copying user configs");
     execute("cp -rf home/. ~");
     execute("sed -ie \"s/browserchoice/$(cat browser)/g\" ~/.config/niri/config.kdl");
-    // enable color for pacman/yay
-    execute("sudo sed -ie 's/#Color/Color/' /etc/pacman.conf");
     execute("mkdir -p ~/Pictures/Wallpapers");
     if (strcmp(darkmode, "true") == 0) {
         execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
