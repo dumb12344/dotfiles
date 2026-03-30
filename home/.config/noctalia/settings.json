@@ -357,7 +357,7 @@
         "enableLockScreenMediaControls": false,
         "enableShadows": true,
         "forceBlackScreenCorners": false,
-        "iRadiusRatio": 0.4,
+        "iRadiusRatio": 0.5,
         "keybinds": {
             "keyDown": [
                 "Down"
@@ -391,7 +391,7 @@
         ],
         "lockScreenTint": 0,
         "passwordChars": false,
-        "radiusRatio": 0.4,
+        "radiusRatio": 0.5,
         "reverseScroll": false,
         "scaleRatio": 1,
         "screenRadiusRatio": 1,
