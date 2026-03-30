@@ -124,8 +124,9 @@ void configure() {
 
 void installPackages() {
     info("Installing packages and updating system");
-    // enable color for pacman/yay
+    // enable color and animation for pacman/yay
     execute("sudo sed -ie 's/#Color/Color/' /etc/pacman.conf");
+    execute("sudo sed -ie 's/#ILoveCandy/ILoveCandy/' /etc/pacman.conf");
     // install packages
     execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
             xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
