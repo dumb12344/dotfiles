@@ -125,8 +125,7 @@ void configure() {
 void installPackages() {
     info("Installing packages and updating system");
     // enable color and animation for pacman/yay
-    execute("sudo sed -ie 's/#Color/Color/' /etc/pacman.conf");
-    execute("sudo sed -ie 's/#ILoveCandy/ILoveCandy/' /etc/pacman.conf");
+    execute("sudo sed -ie 's/#Color/Color\\nILoveCandy/' /etc/pacman.conf");
     // install packages
     execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
             xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
@@ -327,9 +326,9 @@ int main() {
     menu_win = newwin(x / 2, y / 3, x / 3, y / 3);
     keypad(menu_win, TRUE);
     set_menu_win(menu, menu_win);
-    set_menu_sub(menu, derwin(menu_win, 7, 40, 3, x / 5));
+    set_menu_sub(menu, derwin(menu_win, 8, 40, 3, x / 5));
     set_menu_format(menu, 12, 1);
-    set_menu_mark(menu, " * ");
+    set_menu_mark(menu, "*");
     box(menu_win, 0, 0);
 	print_in_middle(menu_win, 1, 0, y / 3, "Dotfiles", COLOR_PAIR(2));
 	mvwaddch(menu_win, 2, 0, ACS_LTEE);
