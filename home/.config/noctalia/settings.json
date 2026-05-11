@@ -23,12 +23,15 @@
             "virt-manager",
             "ryujinx",
             "org.vinegarhq.Sober-2",
-            "org.prismlauncher.PrismLauncher",
             "org.kde.filelight",
             "gparted",
             "timeshift-gtk",
             "org.keepassxc.KeePassXC",
-            "codium"
+            "codium",
+            "steam",
+            "Tom Clancy's Rainbow Six Siege",
+            "org.prismlauncher.PrismLauncher",
+            "org.vinegarhq.Sober"
         ],
         "position": "center",
         "screenshotAnnotationTool": "",
@@ -146,6 +149,7 @@
                     "maxWidth": 145,
                     "scrollingMode": "hover",
                     "showIcon": true,
+                    "showText": true,
                     "textColor": "primary",
                     "useFixedWidth": false
                 },
@@ -220,6 +224,7 @@
         "monitorForColors": "",
         "predefinedScheme": "Noctalia (default)",
         "schedulingMode": "off",
+        "syncGsettings": true,
         "useWallpaperColors": true
     },
     "controlCenter": {
@@ -402,6 +407,7 @@
         "showHibernateOnLockScreen": false,
         "showScreenCorners": false,
         "showSessionButtonsOnLockScreen": true,
+        "smoothScrollEnabled": true,
         "telemetryEnabled": false
     },
     "hooks": {
@@ -432,6 +438,7 @@
     },
     "location": {
         "analogClockInCalendar": false,
+        "autoLocate": false,
         "firstDayOfWeek": 0,
         "hideWeatherCityName": true,
         "hideWeatherTimezone": true,
@@ -442,10 +449,10 @@
         "use12hourFormat": true,
         "useFahrenheit": true,
         "weatherEnabled": true,
-        "weatherShowEffects": true
+        "weatherShowEffects": true,
+        "weatherTaliaMascotAlways": false
     },
     "network": {
-        "airplaneModeEnabled": false,
         "bluetoothAutoConnect": true,
         "bluetoothDetailsViewMode": "grid",
         "bluetoothHideUnnamedDevices": false,
@@ -453,8 +460,7 @@
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
         "networkPanelView": "wifi",
-        "wifiDetailsViewMode": "grid",
-        "wifiEnabled": true
+        "wifiDetailsViewMode": "grid"
     },
     "nightLight": {
         "autoSchedule": true,
@@ -665,6 +671,7 @@
         "fillColor": "#000000",
         "fillMode": "stretch",
         "hideWallpaperFilenames": false,
+        "linkLightAndDarkWallpapers": true,
         "monitorDirectories": [
             {
                 "directory": "/home/username/Pictures/Wallpapers",
