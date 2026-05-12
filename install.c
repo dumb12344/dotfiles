@@ -130,7 +130,7 @@ void installPackages() {
     execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
             xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
             brightnessctl xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
-            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme xorg-xrandr --needed"
+            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme --needed"
     );
     // enable ly
     execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
@@ -196,7 +196,7 @@ void applyConfigs() {
     info("Applying noctalia configs");
     execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
     info("Applying display scaling");
-    int e = execute("xrandr > /dev/null");
+    int e = execute("niri msg outputs > /dev/null");
     if (e != 0) {
         bad("Display not found");
         info("Remember to re-run config application in niri to apply display scaling.");
@@ -204,8 +204,8 @@ void applyConfigs() {
     else {
         good("Display found");
         // definitely not vibecoded
-        execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
-        execute("DISP=$(xrandr | sed -n '2p' | awk '{print $1}'); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
+        execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
+        execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
     }
     info("Changing shell to zsh");
     execute(concat3("sudo chsh ", getenv("USER"), " -s /bin/zsh"));
