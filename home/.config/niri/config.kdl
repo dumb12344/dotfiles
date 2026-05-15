@@ -3,6 +3,7 @@ input {
         xkb {
             // I dislike caps lock
             options "caps:backspace"
+            layout "us(altgr-intl)"
         }
         numlock
     }
