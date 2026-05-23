@@ -73,6 +73,12 @@ layer-rule {
   place-within-backdrop true
 }
 
+// Screenshot editor
+window-rule {
+    match app-id="com.gabm.satty"
+    open-floating true
+}
+
 // Rounded windows
 window-rule {
     geometry-corner-radius 10
@@ -231,6 +237,8 @@ binds {
     Mod+W { toggle-column-tabbed-display; }
 
     Print { screenshot; }
+    // https://github.com/niri-wm/niri/discussions/1737
+    Mod+Print { spawn-sh "grim -t ppm -g \"$(slurp -d)\" - | satty -f - --initial-tool=arrow --copy-command=wl-copy --actions-on-escape=\"save-to-clipboard,exit\" --brush-smooth-history-size=5 --disable-notifications"; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }
 
