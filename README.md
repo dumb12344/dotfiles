@@ -1,11 +1,11 @@
-# Arch Dotfiles
-Intended to be installed after a minimal system is setup (e.g. archinstall with minimal profile)
+# Dotfiles
+Intended to be installed on a minimal arch linux system (e.g. archinstall with minimal profile)
 
 ```
-sudo pacman -Sy git base-devel --needed
-git clone https://github.com/dumb12344/dotfiles.git
-cd dotfiles
-make
+sudo pacman -Sy git base-devel --needed # Install dependencies
+git clone https://github.com/dumb12344/dotfiles.git # Clone project
+cd dotfiles # Go to project directory
+make # Build and run project
 ```
 
 <!--  Old
