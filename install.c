@@ -21,6 +21,7 @@ char * darkmode = "true";
 // https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
 char * choices[] = {
     "Configure",
+    "Update mirrors",
     "Install packages",
     "Install yay AUR helper",
     "Install AUR packages",
@@ -40,10 +41,12 @@ char * choiceids[] = {
     "6",
     "7",
     "8",
+    "9",
     (char *) NULL,
 };
 
 bool finishedtasks[] = {
+    false,
     false,
     false,
     false,
@@ -81,7 +84,7 @@ void bad(char * inText) {
 }
 
 int execute(char * command) {
-    // I can change this to a puts statemenet for debugging
+    // I can change this to a puts statement for debugging
     return system(command);
 }
 
@@ -93,7 +96,7 @@ void configure() {
         fclose(fptr);
     }
     else {
-        info("Do you want to use Zen browser (y) or librewolf (n) (Y/n)");
+        info("Do you want to use Zen Browser (y) or LibreWolf (n) (Y/n)");
         // read choice and set browser shortcut for niri
         char choice[2];
         fgets(choice, 2, stdin);
@@ -120,6 +123,18 @@ void configure() {
         fclose(fptr);
         getchar();
     }
+}
+
+void updateMirrors() {
+    if (access("/usr/sbin/reflector", F_OK) == 0) {
+        good("reflector is already installed.");
+    } else {
+        bad("reflector is not installed.");
+        info("Installing reflector");
+        execute("sudo pacman -Syu reflector");
+    }
+    info("Updating mirrors");
+    execute("sudo reflector --latest 5 --sort rate --save /etc/pacman.d/mirrorlist");
 }
 
 void installPackages() {
@@ -241,30 +256,32 @@ bool handleSelection(int id, MENU * menu) {
             configure();
             break;
         case 2:
-            installPackages();
+            updateMirrors();
             break;
         case 3:
-            installYay();
+            installPackages();
             break;
         case 4:
-            installAurPackages();
+            installYay();
             break;
         case 5:
-            applyConfigs();
+            installAurPackages();
             break;
         case 6:
-            detectProblems();
+            applyConfigs();
             break;
         case 7:
+            detectProblems();
+            break;
+        case 8:
             execute("reboot");
             return true;
             break;
-        case 8:
+        case 9:
             return true;
             break;
     }
     execute(concat2("read -n 1 -p \"", ANSI_COLOR_CYAN "Press any key to continue...\"" ANSI_COLOR_RESET));
-    menu_driver(menu, REQ_TOGGLE_ITEM);
     return false;
 }
 
@@ -321,19 +338,19 @@ int main() {
     determineitems(items, n_choices);
     int x, y;
     getmaxyx(stdscr, x, y);
+    int menuwidth = 41;
 	menu = new_menu((ITEM **) items);
-    menu_opts_off(menu, O_ONEVALUE);
-    menu_win = newwin(x / 2, y / 3, x / 3, y / 3);
+    menu_win = newwin(x / 2, menuwidth, x / 3, y / 2 - 20);
     keypad(menu_win, TRUE);
     set_menu_win(menu, menu_win);
-    set_menu_sub(menu, derwin(menu_win, 8, 40, 3, x / 5));
+    set_menu_sub(menu, derwin(menu_win, ARRAY_SIZE(choiceids), 40, 3, 1));
     set_menu_format(menu, 12, 1);
     set_menu_mark(menu, "*");
     box(menu_win, 0, 0);
-	print_in_middle(menu_win, 1, 0, y / 3, "Dotfiles", COLOR_PAIR(2));
+	print_in_middle(menu_win, 1, 0, menuwidth, "Dotfiles", COLOR_PAIR(2));
 	mvwaddch(menu_win, 2, 0, ACS_LTEE);
-	mvwhline(menu_win, 2, 1, ACS_HLINE, y / 3 - 2);
-	mvwaddch(menu_win, 2, y / 3 - 1, ACS_RTEE);
+	mvwhline(menu_win, 2, 1, ACS_HLINE, menuwidth - 2);
+	mvwaddch(menu_win, 2, menuwidth - 1, ACS_RTEE);
 	wrefresh(menu_win);
 	
 	attron(COLOR_PAIR(2));
