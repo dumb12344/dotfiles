@@ -181,7 +181,7 @@ void installAurPackages() {
     info("Installing AUR packages");
     configure();
     // install binary for browser choice
-    execute(concat3("yay -S --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
+    execute(concat3("yay -Syu --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
 }
 
 void applyConfigs() {
