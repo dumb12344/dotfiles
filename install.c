@@ -134,7 +134,7 @@ void updateMirrors() {
         execute("sudo pacman -Syu reflector");
     }
     info("Updating mirrors");
-    execute("sudo reflector --latest 200 --sort rate --save /etc/pacman.d/mirrorlist");
+    execute("sudo reflector --latest 200 --protocol http,https --sort rate --save /etc/pacman.d/mirrorlist");
 }
 
 void installPackages() {
