@@ -105,8 +105,8 @@ binds {
     Mod+E hotkey-overlay-title="Open File Manager: dolphin" { spawn-sh "dolphin"; }
     Mod+X hotkey-overlay-title="Open Session Menu" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
     Mod+D hotkey-overlay-title="Open Discord" { spawn-sh "discord"; }
-    //Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "kill -9 $(niri msg focused-window | grep 'PID: .[0-9]' | sed -e 's/.*PID: //')"; }
-    Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "xkill"; }
+    Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "kill -9 $(niri msg -j focused-window | jq .pid)"; }
+    //Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "xkill"; }
     Mod+Alt+1 hotkey-overlay-title="Freeze java" { spawn-sh "killall java -19"; }
     Mod+Alt+2 hotkey-overlay-title="Unfreeze java" { spawn-sh "killall java -18"; }
 
