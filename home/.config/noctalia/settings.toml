@@ -16,7 +16,7 @@ padding = 6
 radius_top_left = 0
 radius_top_right = 0
 start = [ "clock", "media" ]
-thickness = 36
+thickness = 37
 
 [[control_center.shortcuts]]
 type = "wifi"
