@@ -100,7 +100,7 @@ void configure() {
         // read choice and set browser shortcut for niri
         char choice[2];
         fgets(choice, 2, stdin);
-        browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser";
+        browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser-bin";
         // write browser to ./browser for config
         fptr = fopen("browser", "w");
         fprintf(fptr, "%s", browser);
@@ -145,10 +145,13 @@ void installPackages() {
     execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
             xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
             brightnessctl xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
-            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme grim slurp satty --needed"
+            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme grim slurp satty noctalia --needed"
     );
     // enable ly
+    info("Enabling ly");
     execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
+    info("Changing shell to zsh");
+    execute(concat3("sudo chsh ", getenv("USER"), " -s /bin/zsh"));
 }
 
 void installYay() {
@@ -181,7 +184,7 @@ void installAurPackages() {
     info("Installing AUR packages");
     configure();
     // install binary for browser choice
-    execute(concat3("yay -Syu --needed noctalia-shell zsh-theme-powerlevel10k-git pokeget ", browser, "-bin"));
+    execute(concat2("yay -Syu --needed zsh-theme-powerlevel10k pokeget ", browser));
 }
 
 void applyConfigs() {
@@ -195,7 +198,8 @@ void applyConfigs() {
         execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
     }
     else {
-        execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
+        // execute("sed -ie 's/\"darkMode\": true,/\"darkMode\": false,/' ~/.config/noctalia/settings.json");
+        execute("sed -ie 's/mode = \"dark\"/mode = \"light\"/' ~/.config/noctalia/settings.toml");
         execute("cp -rf wallpapers/lightmodewallpapers/* ~/Pictures/Wallpapers");
     }
     /*
@@ -205,11 +209,12 @@ void applyConfigs() {
     if (strcmp(test, "n") == 0) {
         execute("ln -sf ~/Pictures/lightmodewallpapers ~/Pictures/Wallpapers");
     }
-    else {
+    else {\
         execute("ln -sf ~/Pictures/darkmodewallpapers ~/Pictures/Wallpapers");
     }*/
     info("Applying noctalia configs");
-    execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
+    // execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
+    execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.toml"));
     info("Applying display scaling");
     int e = execute("niri msg outputs > /dev/null");
     if (e != 0) {
@@ -220,26 +225,19 @@ void applyConfigs() {
         good("Display found");
         // definitely not vibecoded
         execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/niri/config.kdl");
-        execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
+        // execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
+        execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.toml");
     }
-    info("Changing shell to zsh");
-    execute(concat3("sudo chsh ", getenv("USER"), " -s /bin/zsh"));
 }
 
 void detectProblems() {
     info("Detecting problems");
     // check if binaries exist
-    if (access("/usr/sbin/qs", F_OK) == 0) {
-        good("Quickshell is installed properly");
+    if (access("/usr/sbin/noctalia", F_OK) == 0) {
+        good("Noctalia is installed properly");
     }
     else {
-        bad("Quickshell wasn\'t installed properly");
-    }
-    if (access("/etc/xdg/quickshell/noctalia-shell/shell.qml", F_OK) == 0) {
-        good("Noctalia Shell is installed properly");
-    }
-    else {
-        bad("Noctalia Shell wasn\'t installed properly");
+        bad("Noctalia wasn\'t installed properly");
     }
     if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0) {
         good("Powerlevel10k is installed properly");

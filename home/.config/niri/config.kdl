@@ -57,7 +57,7 @@ layout {
     default-column-width { proportion 0.5; }
 }
 
-spawn-at-startup "qs" "-c" "noctalia-shell" "--no-duplicate"
+spawn-at-startup "noctalia"
 
 hotkey-overlay {
     skip-at-startup
@@ -69,15 +69,21 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 // Noctalia wallpaper in overview
 layer-rule {
-  match namespace="^noctalia-overview*"
+  match namespace="^noctalia-backdrop*"
   place-within-backdrop true
 }
 
-// Non-xray for terminal
+// Blur settings
 window-rule {
-  match app-id="kitty"
   background-effect {
     blur true
+    xray false
+  }
+}
+
+layer-rule {
+  match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
+  background-effect {
     xray false
   }
 }
@@ -98,12 +104,12 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     Mod+RETURN hotkey-overlay-title="Open a Terminal: kitty" { spawn-sh "kitty"; }
-    Mod+SPACE hotkey-overlay-title="Run an Application" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
-    Mod+L hotkey-overlay-title="Lock the Screen" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
-    Mod+V hotkey-overlay-title="Open Clipboard Manager" { spawn-sh "qs -c noctalia-shell ipc call launcher clipboard"; }
+    Mod+SPACE hotkey-overlay-title="Run an Application" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+L hotkey-overlay-title="Lock the Screen" { spawn-sh "noctalia msg session lock"; }
+    Mod+V hotkey-overlay-title="Open Clipboard Manager" { spawn-sh "noctalia msg panel-toggle clipboard"; }
     Mod+B hotkey-overlay-title="Open Browser: browserchoice" { spawn-sh "browserchoice"; }
     Mod+E hotkey-overlay-title="Open File Manager: dolphin" { spawn-sh "dolphin"; }
-    Mod+X hotkey-overlay-title="Open Session Menu" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
+    Mod+X hotkey-overlay-title="Open Session Menu" { spawn-sh "noctalia msg panel-toggle session"; }
     Mod+D hotkey-overlay-title="Open Discord" { spawn-sh "discord"; }
     Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "kill -9 $(niri msg -j focused-window | jq .pid)"; }
     //Mod+Shift+Q hotkey-overlay-title="Kill window" { spawn-sh "xkill"; }
@@ -260,15 +266,18 @@ binds {
 
     Mod+Shift+P { power-off-monitors; }
 }
+
 gestures {
   hot-corners {
     off
   }
 }
+
 environment {
   QT_QPA_PLATFORMTHEME "qt6ct"
   QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
 }
+
 debug {
   honor-xdg-activation-with-invalid-serial
 }

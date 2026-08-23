@@ -1,0 +1,155 @@
+config_version = 12
+
+[backdrop]
+enabled = true
+
+[bar.default]
+background_opacity = 0.5
+capsule = true
+capsule_opacity = 0.5
+capsule_radius = 6
+center = [ "workspaces" ]
+end = [ "active_window", "tray", "notifications", "battery", "bar" ]
+font_family = "CaskaydiaCove NFM"
+margin_ends = 0
+padding = 6
+radius_top_left = 0
+radius_top_right = 0
+start = [ "clock", "media" ]
+thickness = 36
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "notification"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[[control_center.shortcuts]]
+type = "wallpaper"
+
+[lockscreen_widgets]
+enabled = true
+schema_version = 2
+widget_order = [ "lockscreen-login-box@eDP-1" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 894.0
+    output = "eDP-1"
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = false
+        show_session_buttons = true
+        show_unlock_hint = false
+        show_weather = false
+
+
+[shell.launcher]
+app_grid = true
+pinned = [ "Geometry Dash", "idea", "virt-manager", "ryujinx", "org.vinegarhq.Sober", "org.kde.filelight", "gparted", "timeshift-gtk", "org.keepassxc.KeePassXC", "codium", "steam", "Tom Clancy's Rainbow Six Siege", "org.prismlauncher.PrismLauncher" ]
+
+[plugins]
+enabled = [ "noctalia/timer" ]
+
+[shell]
+corner_radius_scale = 0.5
+font_family = "CaskaydiaCove NFM"
+niri_overview_type_to_launch_enabled = true
+password_style = "random"
+polkit_agent = true
+time_format = "{:%H:%M:%S}"
+
+    [shell.animation]
+    speed = 2
+
+    [shell.panel]
+    open_near_click_control_center = true
+
+[theme]
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "vibrant"
+
+    [theme.templates]
+    builtin_ids = [ "gtk3", "gtk4", "kcolorscheme", "niri", "qt" ]
+    community_ids = [ "pywalfox", "zen-browser", "discord", "vscode" ]
+
+[wallpaper]
+directory = "/home/username/Pictures/Wallpapers"
+transition = [ "disc", "honeycomb", "stripes", "zoom" ]
+
+    [wallpaper.automation]
+    enabled = true
+    interval_seconds = 60
+
+    [wallpaper.default]
+    path = "/home/username/Pictures/Wallpapers/honeywave.jpg"
+
+    [wallpaper.last]
+    path = "/home/username/Pictures/Wallpapers/honeywave.jpg"
+
+    [wallpaper.monitors.eDP-1]
+    path = "/home/username/Pictures/Wallpapers/honeywave.jpg"
+
+[widget.active_window]
+color = "primary"
+min_length = 0
+
+[widget.bar]
+color = "primary"
+icon_color = "primary"
+show_idle_on_horizontal = false
+type = "noctalia/timer:bar"
+
+[widget.battery]
+color = "primary"
+display_mode = "graphic"
+hide_when_full = true
+
+[widget.clock]
+color = "primary"
+format = "{:%H:%M:%S %m/%e/%Y}"
+
+[widget.media]
+color = "primary"
+title_scroll = "on_hover"
+
+[widget.notifications]
+color = "primary"
+hide_when_no_unread = true
+
+[widget.tray]
+color = "primary"
+
+[widget.workspaces]
+color = "#0F2C57"
+hide_when_empty = true
+scale = 1.15
