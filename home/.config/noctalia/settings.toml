@@ -39,19 +39,21 @@ type = "wallpaper"
 [lockscreen_widgets]
 enabled = true
 schema_version = 2
-widget_order = [ "lockscreen-login-box@eDP-1" ]
+widget_order = [ "lockscreen-login-box@eDP-1", "lockscreen-widget-0000000000000001" ]
 
     [lockscreen_widgets.grid]
-    cell_size = 16
+    cell_size = 32
     major_interval = 4
     visible = true
 
     [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
-    box_height = 196.0
+    box_height = 128.0
     box_width = 810.0
     cx = 960.0
     cy = 894.0
     output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
     rotation = 0.0
     type = "login_box"
 
@@ -59,22 +61,32 @@ widget_order = [ "lockscreen-login-box@eDP-1" ]
         background_color = "surface_variant"
         background_opacity = 0.88
         background_radius = 12.0
-        center_password_text = false
+        center_password_text = true
         input_opacity = 1.0
-        input_radius = 6.0
+        input_radius = 12.0
         layout = "regular"
         show_caps_lock = true
         show_keyboard_layout = true
         show_login_button = true
         show_media = false
         show_session_buttons = true
-        show_unlock_hint = false
+        show_unlock_hint = true
         show_weather = false
 
+    [lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
+    box_height = 0.0
+    box_width = 0.0
+    cx = 960.0
+    cy = 151.0
+    output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "clock"
 
-[shell.launcher]
-app_grid = true
-pinned = [ "Geometry Dash", "idea", "virt-manager", "ryujinx", "org.vinegarhq.Sober", "org.kde.filelight", "gparted", "timeshift-gtk", "org.keepassxc.KeePassXC", "codium", "steam", "Tom Clancy's Rainbow Six Siege", "org.prismlauncher.PrismLauncher" ]
+        [lockscreen_widgets.widget.lockscreen-widget-0000000000000001.settings]
+        color = "primary"
+        format = "{:%H:%M:%S}"
 
 [plugins]
 enabled = [ "noctalia/timer" ]
@@ -92,6 +104,25 @@ time_format = "{:%H:%M:%S}"
 
     [shell.panel]
     open_near_click_control_center = true
+
+    [shell.launcher]
+    app_grid = true
+    pinned = [
+        "org.prismlauncher.PrismLauncher",
+        "Geometry Dash",
+        "idea",
+        "virt-manager",
+        "ryujinx",
+        "org.vinegarhq.Sober",
+        "org.kde.filelight",
+        "gparted",
+        "timeshift-gtk",
+        "org.keepassxc.KeePassXC",
+        "codium",
+        "steam",
+        "Tom Clancy's Rainbow Six Siege",
+        "org.godotengine.Godot"
+    ]
 
 [theme]
 mode = "dark"
