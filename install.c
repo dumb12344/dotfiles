@@ -228,6 +228,8 @@ void applyConfigs() {
         // execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
         execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.toml");
     }
+    info("Settings file explorer");
+    execute("xdg-mime default org.kde.dolphin.desktop inode/directory");
 }
 
 void detectProblems() {
