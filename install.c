@@ -1,21 +1,21 @@
+#include <json-c/json_object.h>
+#include <json-c/json_object_iterator.h>
+#include <json-c/json_util.h>
 #include <ncurses.h>
 #include <menu.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <json-c/json.h>
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define CTRLD 	4
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RED   "\x1b[31m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_RESET "\x1b[0m"
+#define ANSI_COLOR_CYAN  "\x1b[36m"
 
-// idk where to put this
-FILE * fptr;
-
-char * browser = "zen-browser";
-char * darkmode = "true";
+json_object * settings;
 
 // https://stackoverflow.com/questions/3219393/stdlib-and-colored-output-in-c
 // https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
@@ -58,70 +58,80 @@ bool finishedtasks[] = {
     false,
 };
 
-char * concat2(char * s1, char * s2) {
+bool str_eq(const char * a, const char * b) {
+    return strcmp(a, b) == 0;
+}
+
+char * concat2(const char * s1, const char * s2) {
     // https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
     char * result = malloc(strlen(s1) + strlen(s2) + 1);
     snprintf(result, strlen(s1) + strlen(s2) + 1, "%s%s", s1, s2);
     return result;
 }
 
-char * concat3(char * s1, char * s2, char * s3) {
+char * concat3(const char * s1, const char * s2, const char * s3) {
     char * result = malloc(strlen(s1) + strlen(s2) + strlen(s3) + 1);
     snprintf(result, strlen(s1) + strlen(s2) + strlen(s3) + 1, "%s%s%s", s1, s2, s3);
     return result;
 }
 
-void info(char * inText) {
+void info(const char * inText) {
     puts(concat3(ANSI_COLOR_CYAN, inText, ANSI_COLOR_RESET));
 }
 
-void good(char * inText) {
+void good(const char * inText) {
     puts(concat3(ANSI_COLOR_GREEN, inText, ANSI_COLOR_RESET));
 }
 
-void bad(char * inText) {
+void bad(const char * inText) {
     puts(concat3(ANSI_COLOR_RED, inText, ANSI_COLOR_RESET));
 }
 
-int execute(char * command) {
+int execute(const char * command) {
     // I can change this to a puts statement for debugging
     return system(command);
 }
 
+void initConfigure() {
+    info("Do you want to use Zen Browser (y) or LibreWolf (n) (Y/n)");
+    char choice[2];
+    fgets(choice, 2, stdin);
+    char * browser = !str_eq(choice, "n") ? "zen-browser-bin" : "librewolf";
+    char * browserBinary = !str_eq(choice, "n") ? "zen-browser" : "librewolf";
+    json_object_set_string(json_object_object_get(settings, "browser"), browser);
+    json_object_set_string(json_object_object_get(settings, "browserBinary"), browserBinary);
+    getchar();
+
+    info("Do you want to use Dark mode? (Y/n)");
+    fgets(choice, 2, stdin);
+    bool darkMode = !str_eq(choice, "n");
+    json_object_set_boolean(json_object_object_get(settings, "darkMode"), darkMode);
+    getchar();
+
+    info("Do you want Number Lock? (Y/n)");
+    fgets(choice, 2, stdin);
+    bool numlock = !str_eq(choice, "n");
+    json_object_set_boolean(json_object_object_get(settings, "numlock"), numlock);
+    getchar();
+
+    info("Do you want to use ly? (Y/n)");
+    fgets(choice, 2, stdin);
+    bool ly = !str_eq(choice, "n");
+    json_object_set_boolean(json_object_object_get(settings, "ly"), ly);
+    getchar();
+}
+
 void configure() {
-    browser = malloc(100);
-    if (access("browser", F_OK) == 0) {
-        fptr = fopen("browser", "r");
-        fscanf(fptr, "%s", browser);
-        fclose(fptr);
-    }
-    else {
-        info("Do you want to use Zen Browser (y) or LibreWolf (n) (Y/n)");
-        // read choice and set browser shortcut for niri
-        char choice[2];
-        fgets(choice, 2, stdin);
-        browser = strcmp(choice, "n") == 0 ? "librewolf" : "zen-browser-bin";
-        // write browser to ./browser for config
-        fptr = fopen("browser", "w");
-        fprintf(fptr, "%s", browser);
-        fclose(fptr);
-        getchar();
-    }
-    darkmode = malloc(10);
-    if (access("darkmode", F_OK) == 0) {
-        fptr = fopen("darkmode", "r");
-        fscanf(fptr, "%s", darkmode);
-        fclose(fptr);
-    }
-    else {
-        info("Do you want to use Dark mode? (Y/n)");
-        char choice[2];
-        fgets(choice, 2, stdin);
-        darkmode = strcmp(choice, "n") == 0 ? "false" : "true";
-        fptr = fopen("darkmode", "w");
-        fprintf(fptr, "%s", darkmode);
-        fclose(fptr);
-        getchar();
+    settings = json_object_from_file("settings.json");
+    if (!settings) {
+        settings = json_object_new_object();
+        json_object_object_add(settings, "darkMode", json_object_new_boolean(true));
+        json_object_object_add(settings, "browser", json_object_new_string("zen-browser-bin"));
+        json_object_object_add(settings, "browserBinary", json_object_new_string("zen-browser"));
+        json_object_object_add(settings, "numlock", json_object_new_boolean(true));
+        json_object_object_add(settings, "ly", json_object_new_boolean(true));
+        initConfigure();
+        json_object_to_file_ext("settings.json", settings, JSON_C_TO_STRING_PRETTY);
     }
 }
 
@@ -134,22 +144,22 @@ void updateMirrors() {
         execute("sudo pacman -Syu reflector");
     }
     info("Updating mirrors");
-    execute("sudo reflector --latest 15 --protocol https --sort age --save /etc/pacman.d/mirrorlist");
+    execute("sudo reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist");
 }
 
 void installPackages() {
     info("Installing packages and updating system");
     // enable color and animation for pacman/yay
     execute("sudo sed -ie 's/#Color/Color\\nILoveCandy/' /etc/pacman.conf");
-    // install packages
     execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
             xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
             brightnessctl xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
             ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme grim slurp satty noctalia --needed"
     );
-    // enable ly
-    info("Enabling ly");
-    execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
+    if (json_object_get_boolean(json_object_object_get(settings, "ly"))) {
+        info("Enabling ly");
+        execute("sudo systemctl enable ly@tty1.service && sudo systemctl disable getty@tty1.service");
+    }
     info("Changing shell to zsh");
     execute(concat3("sudo chsh ", getenv("USER"), " -s /bin/zsh"));
 }
@@ -159,23 +169,22 @@ void installYay() {
         good("yay is already installed.");
     } else {
         bad("yay is not installed.");
-        // I don't need debug packages
         info("Disabling debug packages in makepkg.conf");
         execute("sudo sed -ie 's/purge debug/purge !debug/' /etc/makepkg.conf");
-        // create temp directory
+
         info("Creating temporary directory");
         char template[] = "/tmp/yay.XXXXXX";
         char * dir_name = mkdtemp(template);
         info(concat2("Created directory ", dir_name));
-        // clone into temp directory and save current directory
+
         execute(concat2("git clone https://aur.archlinux.org/yay-bin.git ", dir_name));
         char dotsdir[1000];
         getcwd(dotsdir, sizeof(dotsdir));
-        // make package and go back to previous directory
+
         chdir(dir_name);
         execute("makepkg -si");
         chdir(dotsdir);
-        // remove package directory
+
         execute(concat2("rm -rf ", dir_name));
     }
 }
@@ -183,8 +192,7 @@ void installYay() {
 void installAurPackages() {
     info("Installing AUR packages");
     configure();
-    // install binary for browser choice
-    execute(concat2("yay -Syu --needed zsh-theme-powerlevel10k pokeget ", browser));
+    execute(concat2("yay -Syu --needed zsh-theme-powerlevel10k pokeget ", json_object_get_string(json_object_object_get(settings, "browser"))));
 }
 
 void applyConfigs() {
@@ -192,9 +200,9 @@ void applyConfigs() {
     configure();
     info("Copying user configs");
     execute("cp -rf home/. ~");
-    execute("sed -ie \"s/browserchoice/$(cat browser)/g\" ~/.config/niri/config.kdl");
+    execute(concat3("sed -ie \"s/browserchoice/", json_object_get_string(json_object_object_get(settings, "browserBinary")), "/g\" ~/.config/niri/config.kdl"));
     execute("mkdir -p ~/Pictures/Wallpapers");
-    if (strcmp(darkmode, "true") == 0) {
+    if (json_object_get_boolean(json_object_object_get(settings, "darkMode"))) {
         execute("cp -rf wallpapers/darkmodewallpapers/* ~/Pictures/Wallpapers");
     }
     else {
@@ -228,6 +236,10 @@ void applyConfigs() {
         // execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.json");
         execute("DISP=$(niri msg -j outputs | jq -r \"keys[0]\"); sed -i \"s/eDP-1/$DISP/g\" ~/.config/noctalia/settings.toml");
     }
+    if (!json_object_get_boolean(json_object_object_get(settings, "numlock"))) {
+        info("Disabling number lock");
+        execute("sed -i \"s/numlock//\" ~/.config/niri/config.kdl");
+    }
     info("Settings file explorer");
     execute("xdg-mime default org.kde.dolphin.desktop inode/directory");
 }
@@ -241,6 +253,7 @@ void detectProblems() {
     else {
         bad("Noctalia wasn\'t installed properly");
     }
+
     if (access("/usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme", F_OK) == 0) {
         good("Powerlevel10k is installed properly");
     }
@@ -310,7 +323,7 @@ void print_in_middle(WINDOW * win, int starty, int startx, int width, char * str
 
 
 void determineitems(ITEM ** items, int n_choices) {
-    for(int i = 0; i < n_choices; ++i) { 
+    for (int i = 0; i < n_choices; ++i) {
         char * prefix = choiceids[i];
         if (i <= n_choices - 2) {
             prefix = concat2(finishedtasks[i] ? "(Finished) " : "           ", prefix);
@@ -352,7 +365,7 @@ int main() {
 	mvwhline(menu_win, 2, 1, ACS_HLINE, menuwidth - 2);
 	mvwaddch(menu_win, 2, menuwidth - 1, ACS_RTEE);
 	wrefresh(menu_win);
-	
+
 	attron(COLOR_PAIR(2));
 	mvprintw(LINES - 1, 0, "Arrow Keys to navigate (Q to Exit and ENTER to Select)");
 	attroff(COLOR_PAIR(2));
@@ -384,4 +397,5 @@ int main() {
         free_item(items[i]);
     free_menu(menu);
 	endwin();
+	json_object_put(settings);
 }

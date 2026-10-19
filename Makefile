@@ -2,4 +2,4 @@ run: build
 	./install
 
 build:
-	gcc -o install install.c -lncurses -lpanel -lmenu
+	gcc -o install install.c -lncurses -lpanel -lmenu -ljson-c
