@@ -107,6 +107,7 @@ time_format = "{:%H:%M:%S}"
 
     [shell.launcher]
     app_grid = true
+    default_view = "pinned"
     pinned = [
         "org.prismlauncher.PrismLauncher",
         "Geometry Dash",
