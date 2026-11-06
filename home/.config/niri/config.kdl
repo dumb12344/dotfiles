@@ -69,23 +69,23 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 // Noctalia wallpaper in overview
 layer-rule {
-  match namespace="^noctalia-backdrop*"
-  place-within-backdrop true
+    match namespace="^noctalia-backdrop*"
+    place-within-backdrop true
 }
 
 // Blur settings
 window-rule {
-  background-effect {
-    blur true
-    xray false
-  }
+    background-effect {
+        blur true
+        xray false
+    }
 }
 
 layer-rule {
-  match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
-  background-effect {
-    xray false
-  }
+    match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
+    background-effect {
+        xray false
+    }
 }
 
 // Screenshot editor
@@ -268,16 +268,16 @@ binds {
 }
 
 gestures {
-  hot-corners {
-    off
-  }
+    hot-corners {
+        off
+    }
 }
 
 environment {
-  QT_QPA_PLATFORMTHEME "qt6ct"
-  QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
 }
 
 debug {
-  honor-xdg-activation-with-invalid-serial
+    honor-xdg-activation-with-invalid-serial
 }
