@@ -154,7 +154,8 @@ void installPackages() {
     execute("sudo pacman -Syu figlet jq git base-devel niri zsh zsh-syntax-highlighting \
             xdg-desktop-portal-gnome xwayland-satellite kitty cliphist cava xdg-desktop-portal \
             brightnessctl xdg-utils vulkan-radeon vulkan-intel vulkan-headers vulkan-tools ly neovim \
-            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme grim slurp satty noctalia --needed"
+            ttf-cascadia-code-nerd qt6ct qt5ct nwg-look adw-gtk-theme grim slurp satty noctalia \
+            flameshot --needed"
     );
     if (json_object_get_boolean(json_object_object_get(settings, "ly"))) {
         info("Enabling ly");

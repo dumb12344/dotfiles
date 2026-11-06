@@ -58,6 +58,7 @@ layout {
 }
 
 spawn-at-startup "noctalia"
+spawn-at-startup "flameshot"
 
 hotkey-overlay {
     skip-at-startup
@@ -255,7 +256,8 @@ binds {
 
     Print { screenshot; }
     // https://github.com/niri-wm/niri/discussions/1737
-    Mod+Print { spawn-sh "grim -t ppm -g \"$(slurp -d)\" - | satty -f - --initial-tool=arrow --copy-command=wl-copy --actions-on-escape=\"save-to-clipboard,exit\" --brush-smooth-history-size=5 --disable-notifications"; }
+    // Mod+Print { spawn-sh "grim -t ppm -g \"$(slurp -d)\" - | satty -f - --initial-tool=arrow --copy-command=wl-copy --actions-on-escape=\"save-to-clipboard,exit\" --brush-smooth-history-size=5 --disable-notifications"; }
+    Mod+Print { spawn-sh "flameshot gui"; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }
 
