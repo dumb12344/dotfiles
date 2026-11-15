@@ -224,6 +224,7 @@ void applyConfigs() {
     info("Applying noctalia configs");
     // execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.json"));
     execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/noctalia/settings.toml"));
+    execute(concat3("sed -ie 's/username/", getenv("USER"), "/' ~/.config/flameshot/flameshot.ini"));
     info("Applying display scaling");
     int e = execute("niri msg outputs > /dev/null");
     if (e != 0) {
